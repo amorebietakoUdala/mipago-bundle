@@ -1,0 +1,3 @@
+MiPagoBundle:
+    resource: "@MiPagoBundle/Controller/"
+    type: annotation

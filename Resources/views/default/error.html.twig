@@ -1,0 +1,6 @@
+{% extends "@MiPago/default/layout.html.twig" %}
+{% trans_default_domain "mipago" %}
+
+{% block error %}
+    {{ exception.message | trans({'%suffixes%' : suffixes},"mipago", app.request.locale) }}
+{% endblock %}

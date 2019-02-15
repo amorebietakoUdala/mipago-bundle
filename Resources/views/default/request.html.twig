@@ -1,0 +1,24 @@
+{% extends "@MiPago/default/layout.html.twig" %}
+{% trans_default_domain "mipago" %}
+
+{% block request_content %}
+    {% if payment_status == '04' %}
+	{{ message }}
+    {% endif %}
+    {% if app.environment == 'dev' %}
+	{{ payment }}
+    {% endif %}
+    <form name='p12FormOids' id='p12FormOids' method='POST' action='{{ serviceURL }}'>
+	<input type='hidden' name='module' value='IU'>
+    {% if payment_status == '01' %}
+	<input type='hidden' name='p12iOidsPago' value="{{ p12OidsPago| raw }}">
+	<input type='hidden' name='p12iPresentationRequestData' value="{{p12iPresentationRequestData | raw }}">
+	<input type='hidden' name='p12iProtocolData' value="{{p12iProtocolData | raw }}">
+    {% endif %}
+    </form>
+    {% if payment_status == '01' %}
+	<script language='JavaScript'>
+	document.getElementById('p12FormOids').submit();
+	</script>
+    {% endif %}
+{% endblock request_content %}

@@ -1,0 +1,19 @@
+services:
+    _defaults:
+        # automatically injects dependencies in your services
+        autowire: true
+        # automatically registers your services as commands, event subscribers, etc.
+        autoconfigure: true
+        # this means you cannot fetch services directly from the container via $container->get()
+        # if you need to do this, you can override this setting on individual services
+        public: false
+
+    MiPago\Bundle\Controller\PaymentController:
+        tags: ['controller.service_arguments']
+        public: true
+        arguments: ['%mipago.forwardController%']
+
+    MiPago\Bundle\Services\MiPagoService:
+        class: MiPago\Bundle\Services\MiPagoService
+        public: true
+        arguments: ['@doctrine.orm.entity_manager','%cpr%','%sender%','%format%','%suffixes%','%language%', '%return_url%', '%confirmation_url%', '%test_environment%', '@monolog.logger']

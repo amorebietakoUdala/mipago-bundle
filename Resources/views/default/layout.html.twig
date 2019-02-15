@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv='Expires'content='Tue, 01 Jan 1980 1:00:00 GMT'>
+    <meta http-equiv='Pragma' content='no-cache'>
+    <meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1' />
+    <meta charset="iso-8859-1" />
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    {% block body %}
+	{% block error %}{% endblock error %}
+	{% block request_content %}{% endblock request_content %}
+    {% endblock body %}
+    {% block javascripts %}
+	<script type="text/javascript" src="{{ asset('bower_components/jquery/dist/jquery.min.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('bower_components/popper.js/dist/umd/popper.min.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('js/orokorra.js') }}"></script>
+    {% endblock %}
+</body>
+</html>
+
