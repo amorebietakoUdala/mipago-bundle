@@ -30,8 +30,9 @@ class PaymentController extends Controller
 	$quantity = $request->get('quantity');
 	$suffix = $request->get('suffix');
 	$extra = $request->get('extra');
+	$sender = $request->get('sender');
 	try {
-	    $result = $miPagoService->make_payment_request($reference_number, $payment_limit_date, $suffix, $quantity, $locale, $extra);
+	    $result = $miPagoService->make_payment_request($reference_number, $payment_limit_date, $sender, $suffix, $quantity, $locale, $extra);
 	} catch ( Exception $e ) {
 	    $logger->debug($e);
 	    $logger->debug('<--sendRequestAction: Exception: ' . $e->getMessage());

@@ -194,7 +194,7 @@ class Payment
     /**
      * @var string
      *
-     * @ORM\Column(name="territoty", type="string", nullable=true)
+     * @ORM\Column(name="territory", type="string", nullable=true)
      */
     private $territory;
     
@@ -436,6 +436,10 @@ class Payment
     
     public function setMipagoResponse($mipagoResponse) {
 	$this->mipagoResponse = $mipagoResponse;
+    }
+    
+    public function isPaymentSuccessfull() {
+	return ($this->status === self::PAYMENT_STATUS_OK);
     }
 
     public function __toString() {

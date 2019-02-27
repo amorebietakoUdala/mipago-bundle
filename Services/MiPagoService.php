@@ -215,10 +215,13 @@ XML;
 //	    $cpr, $sender, $format, $suffix, $reference_number, $payment_limit_date, $quantity, 
 //	    $language, $return_url, $payment_modes, $test_environment=FALSE, $extra) {
     public function make_payment_request (
-	    $reference_number, $payment_limit_date, $suffix, $quantity, $language, $extra) {
+	    $reference_number, $payment_limit_date, $sender, $suffix, $quantity, $language, $extra) {
 	$em = $this->em;
 	$cpr = $this->cpr;
-//	$sender = $this->sender;
+	/* If sender is especified default is overwritten else takes the sender from the configuration file */
+	if ( $sender != null ) {
+	    $this->sender = $sender;
+	}
 	$format = $this->format;
 //	$language = $this->language;
 	$return_url = $this->return_url;
@@ -247,8 +250,12 @@ XML;
 	    throw new Exception ('Suffix, not allowed. The allowed suffixes are: %suffixes%');
 	}
 	
+	// TODO Control the sender not found exception.
+	
+	$logger = $this->logger;
 	$result = $this->__initialize_payment($reference_number, $payment_limit_date, $suffix, $quantity, $extra);
 
+	$logger->debug($result);
 	$result_fields = $this->__parse_initialization_response($result);
 
 	if ($result_fields['payment_status'] == MiPagoService::PAYMENT_STATUS_NOK ) {
