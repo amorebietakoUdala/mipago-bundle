@@ -1,0 +1,38 @@
+{
+    "name" : "amorebietakoUdala/MiPagoBundle",
+    "description" : "A bundle to make payment through Basque Goverment's MiPago platform in symfony projects",
+    "type" : "symfony-bundle",
+    "authors" : [{
+        "name" : "Amorebietako Udala",
+        "email" : "informatika@amorebieta.eus"
+    }],
+    "keywords" : [
+        "Payments MiPago Basque Governmet"
+    ],
+    "license" : [
+        "MIT"
+    ],
+    "require" : {
+        "php": ">=7.1.0",
+        "doctrine/orm": "^2.5",
+        "sensio/distribution-bundle": "^5.0.19",
+        "symfony/monolog-bundle": "^3.1.0",
+        "symfony/polyfill-apcu": "^1.0",
+        "symfony/symfony": "3.4.*",
+        "symfony/translation": "^3.4",
+        "twig/twig": "^1.0||^2.0"
+    },
+    "autoload" : {
+        "psr-0" : {
+            "amorebietakoUdala\\MiPagoBundle" : ""
+        }
+    },
+    "target-dir" : "amorebietakoUdala/MiPagoBundle",
+    "repositories" : [{
+    }],
+    "extra" : {
+    "branch-alias" : {
+            "dev-master" : "master"
+        }
+    }
+}

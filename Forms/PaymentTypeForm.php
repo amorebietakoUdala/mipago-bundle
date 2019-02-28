@@ -8,14 +8,6 @@
 
 namespace MiPago\Bundle\Forms;
 
-use AppBundle\Entity\Egoera;
-use AppBundle\Entity\Enpresa;
-use AppBundle\Entity\Zerbitzua;
-use AppBundle\Entity\Eskakizuna;
-use AppBundle\Repository\EgoeraRepository;
-use AppBundle\Repository\EnpresaRepository;
-use AppBundle\Repository\ZerbitzuaRepository;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -23,7 +15,6 @@ use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use MiPago\Bundle\Entity\Payment;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\ButtonType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 /**
  * Description of ReceiptBilatzaileaForm
