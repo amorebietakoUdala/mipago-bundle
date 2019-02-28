@@ -1,5 +1,5 @@
 {
-    "name" : "amorebietakoUdala/MiPagoBundle",
+    "name" : "amorebietakoUdala/mipago-bundle",
     "description" : "A bundle to make payment through Basque Goverment's MiPago platform in symfony projects",
     "type" : "symfony-bundle",
     "authors" : [{
