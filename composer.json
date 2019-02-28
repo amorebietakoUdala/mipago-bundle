@@ -27,8 +27,6 @@
             "amorebietakoUdala\\MiPagoBundle" : ""
         }
     },
-    "target-dir" : "amorebietakoUdala/MiPagoBundle",
-	"minimum-stability": "dev",
     "repositories" : [{
     }],
     "extra" : {
