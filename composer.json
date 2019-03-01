@@ -34,9 +34,14 @@
         }
 	],
 	"scripts": { 
-		"post-install-cmd": "cd vendor/amorebietakoudala/mipago-bundle/Resources/public && bower install && npm install",
+		"post-install-cmd": [ 
+			"@bower-install",
+			"@npm-create-dir",
+			"@npm-install"
+		],
 		"bower-install": "bower -V install",
-		"npm-install": "npm install"
+		"npm-create-dir" : "mkdir -p Resources/public/node_modules",
+		"npm-install": "npm install --verbose --prefix Resources/public"
 	},
 	"minimum-stability": "stable",
 	"prefer-stable" : true,
