@@ -34,9 +34,11 @@
         }
 	],
 	"scripts": { 
-		"post-install-cmd": "cd vendor/amorebietakoudala/mipago-bundle/Resources/public && bower install && npm install"
+		"post-install-cmd": "cd vendor/amorebietakoudala/mipago-bundle/Resources/public && bower install && npm install",
+		"bower-install": "bower -V install",
+		"npm-install": "npm install"
 	},
-	"minimum-stabiliy": "stable",
+	"minimum-stability": "stable",
 	"prefer-stable" : true,
     "extra" : {
     "branch-alias" : {
