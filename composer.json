@@ -27,8 +27,12 @@
             "MiPago\\Bundle\\" : ""
         }
     },
-    "repositories" : [{
-    }],
+    "repositories" : [
+        {
+            "type": "vcs",
+            "url": "https://github.com/amorebietakoUdala/mipago-bundle"
+        }
+	],
 	"scripts": { 
 		"post-install-cmd": "cd vendor/amorebietakoudala/mipago-bundle/Resources/public && bower install && npm install"
 	},
