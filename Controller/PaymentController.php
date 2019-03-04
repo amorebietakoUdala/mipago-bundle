@@ -77,7 +77,6 @@ class PaymentController extends Controller
     
     /**
      * @Route("/admin/payments", name="mipago_list_payments", methods={"GET","POST"})
-     * #Security("has_role('ROLE_ADMIN')")
      */
     public function listPaymentsAction(Request $request, LoggerInterface $logger)
     {
@@ -116,7 +115,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * @Route("//admin/payment/{id}", name="mipago_show_payment")
+     * @Route("/admin/payment/{id}", name="mipago_show_payment")
      */
 
     public function showAction (Request $request, Payment $payment, LoggerInterface $logger ){
