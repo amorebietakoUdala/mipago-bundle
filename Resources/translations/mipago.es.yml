@@ -1,6 +1,7 @@
 Already payd: Ya pagado
 'Suffix, not allowed. The allowed suffixes are: %suffixes%': 'Sufijo no permitido. Los sufijos permitidos son: %suffixes%'
 'Unable to access this page!': 'No se puede acceder a esa página'
+'Payment could not be initialized. Probably incorrect suffix.': 'No se pudo inicializar el pago posiblemente el sufijo es incorrecto.'
 
 payment.from: Desde
 payment.to: Hasta
@@ -16,7 +17,7 @@ payment.name: Nombre
 payment.surname_1: Apellido 1
 payment.surname_2: Apellido 2
 payment.nif: Nif
-payment.phone: Phone
+payment.phone: Teléfono
 payment.email: Email
 payment.operation_number: Num. operación
 payment.quantity: Importe
