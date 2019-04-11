@@ -113,7 +113,7 @@ XML;
     <descripcion>
 	<eu>{eu}</eu>
 	<es>{es}</es>
-    </descripcion>'''
+    </descripcion>
 XML;
 
     public $PRESENTATION_XML = <<<XML
@@ -151,11 +151,10 @@ XML;
      * @param array           $suffixes
      * @param string          $language
      * @param string          $return_url
-     * @param string          $confirmation_url
      * @param bool            $test_environment
      * @param LoggerInterface $logger
      */
-    public function __construct(EntityManager $em, $cpr, $sender, $format, $suffixes, $language, $return_url, $confirmation_url, $test_environment, $logger)
+    public function __construct(EntityManager $em, $cpr, $sender, $format, $suffixes, $language, $return_url, $test_environment, $logger)
     {
         $this->em = $em;
         $this->cpr = $cpr;
@@ -164,8 +163,7 @@ XML;
         $this->suffixes = $suffixes;
         $this->language = $language;
         $this->return_url = $return_url;
-        $this->confirmation_url = $confirmation_url;
-        $this->payment_modes = ['001', '002'];
+        $this->payment_modes = ['002'];
         $this->test_environment = $test_environment;
         $this->logger = $logger;
         $this->template = file_get_contents(__DIR__.'/../Resources/config/template.xml');
@@ -204,10 +202,6 @@ XML;
      *
      * @throws Exception
      */
-
-//    public function make_payment_request (
-    //	    $cpr, $sender, $format, $suffix, $reference_number, $payment_limit_date, $quantity,
-    //	    $language, $return_url, $payment_modes, $test_environment=FALSE, $extra) {
     public function make_payment_request(
         $reference_number, $payment_limit_date, $sender, $suffix, $quantity, $language, $extra)
     {
@@ -220,7 +214,6 @@ XML;
         $format = $this->format;
         //	$language = $this->language;
         $return_url = $this->return_url;
-        //	$confirmation_url = $this->confirmation_url;
         $payment_modes = $this->payment_modes;
         $test_environment = $this->test_environment;
         $suffixes = $this->suffixes;
