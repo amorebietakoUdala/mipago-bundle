@@ -16,4 +16,4 @@ services:
     MiPago\Bundle\Services\MiPagoService:
         class: MiPago\Bundle\Services\MiPagoService
         public: true
-        arguments: ['@doctrine.orm.entity_manager','%cpr%','%sender%','%format%','%suffixes%','%language%', '%return_url%', '%confirmation_url%', '%test_environment%', '@monolog.logger']
+        arguments: ['@doctrine.orm.entity_manager','%cpr%','%sender%','%format%','%suffixes%','%language%', '%return_url%', '%test_environment%', '@monolog.logger']

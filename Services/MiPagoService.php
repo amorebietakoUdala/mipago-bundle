@@ -596,9 +596,11 @@ XML;
         } else {
             $text_message = null;
         }
+
         $fields = [
         'id' => ($root->filterXPath('.//id')->count() > 0) ? $root->filterXPath('.//id')->text() : null,
         'payment_id' => ($root->filterXPath('.//paymentid')->count() > 0) ? $root->filterXPath('.//paymentid')->text() : null,
+        'referenceNumberDC' => ($root->filterXPath('.//referencia')->count() > 0) ? $root->filterXPath('.//referencia')->text() : null,
         'codigo' => ($root->filterXPath('.//estado/codigo')->count() > 0) ? $root->filterXPath('.//estado/codigo')->text() : null,
         'quantity' => ($root->filterXPath('.//importe')->count() > 0) ? $root->filterXPath('.//importe')->text() : null,
         'operationNumber' => ($root->filterXPath('.//numerooperacion')->count() > 0) ? $root->filterXPath('.//numerooperacion')->text() : null,
@@ -627,12 +629,18 @@ XML;
         parse_str($confirmation_payload, $params);
         //	dump($params['param1']);die;
         $fields = $this->__parse_confirmation_response($params['param1']);
+//        dump($fields);
+//        die;
         $payment = $this->em->getRepository(Payment::class)->findOneBy([
         'registered_payment_id' => $fields['id'],
     ]);
-        //	dump($payment);die;
+        if (null === $payment) {
+            $payment = new Payment();
+        }
         $payment->setStatus($fields['codigo']);
         $date = new \DateTime();
+        // It automatically fills quantity, suffix and reference numbers
+        $payment->setRegistered_payment_id($fields['payment_id']);
         $payment->setTimestamp($date->setTimestamp($fields['timestamp']));
         $payment->setStatusMessage($fields['message']);
         $payment->setOperationNumber($fields['operationNumber']);
