@@ -637,10 +637,11 @@ XML;
         if (null === $payment) {
             $payment = new Payment();
         }
+        echo $payment->__toString();
         $payment->setStatus($fields['codigo']);
         $date = new \DateTime();
         // It automatically fills quantity, suffix and reference numbers
-        $payment->setRegistered_payment_id($fields['payment_id']);
+        $payment->setRegistered_payment_id($fields['id']);
         $payment->setTimestamp($date->setTimestamp($fields['timestamp']));
         $payment->setStatusMessage($fields['message']);
         $payment->setOperationNumber($fields['operationNumber']);
