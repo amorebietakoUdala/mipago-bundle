@@ -1,53 +1,52 @@
 {
-    "name" : "amorebietakoudala/mipago-bundle",
-    "description" : "A bundle to make payment through Basque Goverment's MiPago platform in symfony projects",
-    "type" : "symfony-bundle",
-    "authors" : [{
-        "name" : "Amorebietako Udala",
-        "email" : "informatika@amorebieta.eus"
-    }],
-    "keywords" : [
+    "name": "amorebietakoudala/mipago-bundle",
+    "description": "A bundle to make payment through Basque Goverment's MiPago platform in symfony projects",
+    "type": "symfony-bundle",
+    "authors": [
+        {
+            "name": "Amorebietako Udala",
+            "email": "informatika@amorebieta.eus"
+        }
+    ],
+    "keywords": [
         "Payments MiPago Basque Government"
     ],
-    "license" : [
+    "license": [
         "MIT"
     ],
-    "require" : {
+    "require": {
         "php": ">=7.1.0",
         "doctrine/orm": "^2.5",
-        "sensio/distribution-bundle": "^5.0.19",
-        "symfony/monolog-bundle": "^3.1.0",
-        "symfony/polyfill-apcu": "^1.0",
-        "symfony/symfony": "3.4.*",
-        "symfony/translation": "^3.4",
-        "twig/twig": "^1.0||^2.0"
+        "symfony/translation": "^4.0",
+        "twig/twig": "^2.12",
+        "symfony/config": "^4.3"
     },
-    "autoload" : {
-        "psr-4" : {
-            "MiPago\\Bundle\\" : ""
+    "autoload": {
+        "psr-4": {
+            "MiPago\\Bundle\\": ""
         }
     },
-    "repositories" : [
+    "repositories": [
         {
             "type": "vcs",
             "url": "https://github.com/amorebietakoUdala/mipago-bundle"
         }
-	],
-	"scripts": { 
-		"post-install-cmd": [ 
-			"@bower-install",
-			"@npm-create-dir",
-			"@npm-install"
-		],
-		"bower-install": "bower -V install",
-		"npm-create-dir" : "mkdir -p Resources/public/node_modules",
-		"npm-install": "npm install --verbose --prefix Resources/public"
-	},
-	"minimum-stability": "stable",
-	"prefer-stable" : true,
-    "extra" : {
-    "branch-alias" : {
-            "dev-master" : "0.9-dev"
+    ],
+    "scripts": {
+        "post-install-cmd": [
+            "@bower-install",
+            "@npm-create-dir",
+            "@npm-install"
+        ],
+        "bower-install": "bower -V install",
+        "npm-create-dir": "mkdir -p Resources/public/node_modules",
+        "npm-install": "npm install --verbose --prefix Resources/public"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "master-dev"
         }
     }
 }

@@ -33,6 +33,6 @@ class MiPagoExtension extends Extension
         $definition->replaceArgument(5, $config['language']);
         $definition->replaceArgument(6, $config['return_url']);
         $definition->replaceArgument(7, $config['test_environment']);
-        //	$definition->replaceArgument(1, $config['payment_mode']);
+        $definition->replaceArgument(8, $config['payment_modes']);
     }
 }

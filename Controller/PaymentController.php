@@ -2,7 +2,7 @@
 
 namespace MiPago\Bundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -12,7 +12,7 @@ use MiPago\Bundle\Services\MiPagoService;
 use Psr\Log\LoggerInterface;
 use Exception;
 
-class PaymentController extends Controller
+class PaymentController extends AbstractController
 {
     /**
      * @Route("/sendRequest", name="mipago_sendRequest", methods={"GET","POST"})
@@ -34,8 +34,8 @@ class PaymentController extends Controller
             $logger->debug('<--sendRequestAction: Exception: '.$e->getMessage());
 
             return $this->render('@MiPago/default/error.html.twig', [
-        'exception' => $e,
-        'suffixes' => implode(',', $this->getParameter('mipago.suffixes')),
+            'exception' => $e,
+            'suffixes' => implode(',', $miPagoService->getSuffixes()),
         ]);
         }
         $logger->debug('<--sendRequestAction: End OK');
@@ -46,7 +46,7 @@ class PaymentController extends Controller
     /**
      * @Route("/thanks", name="mipago_thanks" , methods={"GET"})
      */
-    public function thanksAction()
+    public function thanksAction(LoggerInterface $logger)
     {
         $logger->debug('-->thanksAction: Start');
         $logger->debug('<--thanksAction: End');

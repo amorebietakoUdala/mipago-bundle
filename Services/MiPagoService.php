@@ -139,9 +139,10 @@ XML;
     private $format = null;
     private $language = null;
     private $return_url = null;
-    private $payment_modes = null;
+    private $payment_modes = [];
     private $test_environment = null;
     private $logger = null;
+    private $suffixes = [];
 
     /**
      * @param EntityManager   $em
@@ -154,7 +155,7 @@ XML;
      * @param bool            $test_environment
      * @param LoggerInterface $logger
      */
-    public function __construct(EntityManager $em, $cpr, $sender, $format, $suffixes, $language, $return_url, $test_environment, $logger)
+    public function __construct(EntityManager $em, $cpr, $sender, $format, $suffixes, $language, $return_url, $test_environment, $payment_modes, $logger)
     {
         $this->em = $em;
         $this->cpr = $cpr;
@@ -163,7 +164,7 @@ XML;
         $this->suffixes = $suffixes;
         $this->language = $language;
         $this->return_url = $return_url;
-        $this->payment_modes = ['002'];
+        $this->payment_modes = $payment_modes;
         $this->test_environment = $test_environment;
         $this->logger = $logger;
         $this->template = file_get_contents(__DIR__.'/../Resources/config/template.xml');
@@ -233,8 +234,16 @@ XML;
         if ('521' != $format) {
             throw new Exception('We only accept payments with Format 521');
         }
-
-        if (count($suffixes) > 0 && !in_array($suffix, $suffixes)) {
+        
+        $suffixesArray = [];
+        if ( 0 !== strlen($suffixes[0]) ) {
+            $suffixesArray = explode(",",$suffixes[0]);
+        }
+        $payment_modesArray = [];
+        if ( 0 !== strlen($payment_modes[0]) ) {
+            $payment_modesArray = explode(",",$payment_modes[0]);
+        }
+        if (count($suffixesArray) > 0 && !in_array($suffix, $suffixesArray)) {
             throw new Exception('Suffix, not allowed. The allowed suffixes are: %suffixes%');
         }
 
@@ -259,7 +268,7 @@ XML;
         $registered_payment_id = $result_fields['payment_id'];
         if (null != $registered_payment_id) {
             $payment_modes_string = '';
-            foreach ($payment_modes as $payment_mode) {
+            foreach ($payment_modesArray as $payment_mode) {
                 $payment_modes_string .= str_replace('{}', $payment_mode, "<paymentMode oid='{}'/>");
             }
             $params = [
@@ -430,7 +439,7 @@ XML;
         '{pdf_xslt_url}' => array_key_exists('pdf_xslt_url', $extra) ? $extra['pdf_xslt_url'] : '',
     ];
         $initialization_xml = str_replace(array_keys($params), $params, $this->template);
-
+        
         $url = $INITIALIZATION_URL;
         $data = $initialization_xml;
         $options = array(
@@ -657,4 +666,9 @@ XML;
 
         return $payment;
     }
+    
+    public function getSuffixes() {
+        return $this->suffixes;
+    }
+
 }
