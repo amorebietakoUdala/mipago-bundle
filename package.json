@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "popper.js": "^1.14.7",
-    "pc-bootstrap4-datetimepicker": "^4.17.50"
+    "jquery": "^3.4.0",
+    "pc-bootstrap4-datetimepicker": "^4.17.50",
+    "popper.js": "^1.14.7"
   },
   "devDependencies": {},
   "scripts": {
