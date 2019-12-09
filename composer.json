@@ -19,7 +19,7 @@
         "doctrine/orm": "^2.5",
         "symfony/translation": "^4.0",
         "twig/twig": "^2.12",
-        "symfony/config": "^4.3"
+        "symfony/config": "^4.4"
     },
     "autoload": {
         "psr-4": {
