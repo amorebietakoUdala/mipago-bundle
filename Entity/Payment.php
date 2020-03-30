@@ -7,7 +7,6 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Auditoria.
  *
- * @ORM\Table(name="Payments")
  * @ORM\Entity(repositoryClass="MiPago\Bundle\Repository\PaymentRepository")
  */
 class Payment
@@ -23,6 +22,9 @@ class Payment
     self::PAYMENT_STATUS_OK => 'status.paid',
     self::PAYMENT_STATUS_NOK => 'status.unpaid',
     ];
+
+    const SOURCE_MIPAGO = 0;
+    const SOURCE_OTHER = 1;
 
     /**
      * @var int
@@ -52,7 +54,7 @@ class Payment
      *
      * @var string
      *
-     * @ORM\Column(name="reference_number_dc", type="string", length=12)
+     * @ORM\Column(name="reference_number_dc", type="string", length=12, nullable=true)
      */
     private $reference_number_DC;
 
@@ -223,6 +225,11 @@ class Payment
      * @ORM\Column(name="response", type="string", length=4000, nullable=true)
      */
     private $mipagoResponse;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $source = self::SOURCE_MIPAGO;
 
     public function getId()
     {
@@ -499,6 +506,18 @@ class Payment
         return self::PAYMENT_STATUS_OK === $this->status;
     }
 
+    public function getSource(): ?int
+    {
+        return $this->source;
+    }
+
+    public function setSource(int $source): self
+    {
+        $this->source = $source;
+
+        return $this;
+    }
+
     public function __toString()
     {
         return json_encode([
@@ -524,6 +543,7 @@ class Payment
         'phone' => $this->phone,
         'email' => $this->email,
         'mipagoResponse' => $this->mipagoResponse,
+        'source' => $this->source,
     ]);
     }
 
@@ -567,6 +587,7 @@ class Payment
         'phone' => $this->phone,
         'email' => $this->email,
         'mipagoResponse' => $this->mipagoResponse,
+        'source' => $this->source,
     ];
     }
 }

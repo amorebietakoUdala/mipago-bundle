@@ -11,9 +11,17 @@ use MiPago\Bundle\Forms\PaymentTypeForm;
 use MiPago\Bundle\Services\MiPagoService;
 use Psr\Log\LoggerInterface;
 use Exception;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class PaymentController extends AbstractController
 {
+    private $forwardController;
+
+    public function __construct($forwardController)
+    {
+        $this->forwardController = $forwardController;
+    }
+
     /**
      * @Route("/sendRequest", name="mipago_sendRequest", methods={"GET","POST"})
      */
@@ -34,9 +42,9 @@ class PaymentController extends AbstractController
             $logger->debug('<--sendRequestAction: Exception: '.$e->getMessage());
 
             return $this->render('@MiPago/default/error.html.twig', [
-            'exception' => $e,
-            'suffixes' => implode(',', $miPagoService->getSuffixes()),
-        ]);
+                'exception' => $e,
+                'suffixes' => implode(',', $miPagoService->getSuffixes()),
+            ]);
         }
         $logger->debug('<--sendRequestAction: End OK');
 
@@ -62,86 +70,71 @@ class PaymentController extends AbstractController
         $logger->debug('-->confirmationAction: Start');
         $logger->debug($request->getContent());
         $payment = $miPagoService->process_payment_confirmation($request->getContent());
-        $forwardController = $this->getParameter('mipago.forwardController');
-
-        if (null != $forwardController) {
+        if (null != $this->forwardController) {
             $logger->debug('-->confirmationAction: End OK');
 
-            return $this->forward($forwardController, [
-        'payment' => $payment,
-        ]);
-        } else {
-            $logger->debug('-->confirmationAction: End OK withJSONResponse');
-
-            return new JsonResponse('OK');
+            return $this->forward($this->forwardController, [
+                'payment' => $payment,
+                ]);
         }
+        $logger->debug('-->confirmationAction: End OK withJSONResponse');
 
-        //	return $this->render('@MiPago/default/confirmation.html.twig',[
-//	    'payment' => $payment
-//	]);
+        return new JsonResponse('OK');
     }
 
     /**
      * @Route("/admin/payments", name="mipago_list_payments", methods={"GET","POST"})
+     * @IsGranted("ROLE_ADMIN")
      */
     public function listPaymentsAction(Request $request, LoggerInterface $logger)
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN', null, 'Unable to access this page!');
         $logger->debug('-->listPaymentsAction: Start');
-        $user = $this->get('security.token_storage')->getToken()->getUser();
-        $roles = ('anon.' === $user) ? ['IS_AUTHENTICATED_ANONYMOUSLY'] : $user->getRoles();
-        $locale = $this->__setLocale($request);
+        $this->__setLocale($request);
         $em = $this->getDoctrine()->getManager();
         $form = $this->createForm(PaymentTypeForm::class, null, [
-        'search' => true,
-        'readonly' => false,
-    ]);
+            'search' => true,
+            'readonly' => false,
+        ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $results = $em->getRepository(Payment::class)->findPaymentsBy($data);
 
             return $this->render('@MiPago/default/list.html.twig', [
-        'form' => $form->createView(),
-        'payments' => $results,
-        'search' => true,
-        'readonly' => false,
-        ]);
+                'form' => $form->createView(),
+                'payments' => $results,
+                'search' => true,
+                'readonly' => false,
+            ]);
         }
         $logger->debug('<--listPaymentsAction: End OK');
 
         return $this->render('@MiPago/default/list.html.twig', [
-        'form' => $form->createView(),
-        'search' => true,
-        'readonly' => false,
-//	    'payments' => $results,
-    ]);
-
-        //	return $this->render('@MiPago/default/confirmation.html.twig',[
-//	    'payment' => $payment
-//	]);
+            'form' => $form->createView(),
+            'search' => true,
+            'readonly' => false,
+        ]);
     }
 
     /**
      * @Route("/admin/payment/{id}", name="mipago_show_payment")
+     * @IsGranted("ROLE_ADMIN")
      */
     public function showAction(Request $request, Payment $payment, LoggerInterface $logger)
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN', null, 'Unable to access this page!');
         $logger->debug('-->showAction: Start');
-        $user = $this->get('security.token_storage')->getToken()->getUser();
         $logger->debug('Payment number: '.$payment->getId());
         $form = $this->createForm(PaymentTypeForm::class, $payment->toArray(), [
-        'search' => false,
-        'readonly' => true,
-    ]);
+            'search' => false,
+            'readonly' => true,
+        ]);
 
         return    $this->render('@MiPago/default/show.html.twig', [
-        'form' => $form->createView(),
-        'payment' => $payment,
-        'readonly' => true,
-        'search' => false,
-    ]);
+            'form' => $form->createView(),
+            'payment' => $payment,
+            'readonly' => true,
+            'search' => false,
+        ]);
     }
 
     private function __setLocale($request)

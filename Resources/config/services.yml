@@ -11,7 +11,7 @@ services:
     MiPago\Bundle\Controller\PaymentController:
         tags: ['controller.service_arguments']
         public: true
-        arguments: ['%mipago.forwardController%']
+        arguments: ['%forwardController%']
 
     MiPago\Bundle\Services\MiPagoService:
         class: MiPago\Bundle\Services\MiPagoService
