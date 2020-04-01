@@ -37,5 +37,8 @@ class MiPagoExtension extends Extension
 
         $definition2 = $container->getDefinition('MiPago\Bundle\Controller\PaymentController');
         $definition2->replaceArgument(0, $config['forwardController']);
+
+        $definition3 = $container->getDefinition('MiPago\Bundle\Doctrine\PaymentManager');
+        $definition3->replaceArgument(1, $config['payment_class']);
     }
 }

@@ -6,7 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use MiPago\Bundle\Entity\Payment;
+use MiPago\Bundle\Model\Payment;
 use MiPago\Bundle\Forms\PaymentTypeForm;
 use MiPago\Bundle\Services\MiPagoService;
 use Psr\Log\LoggerInterface;

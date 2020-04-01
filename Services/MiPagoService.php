@@ -9,7 +9,6 @@
 namespace MiPago\Bundle\Services;
 
 use Symfony\Component\DomCrawler\Crawler;
-use Doctrine\ORM\EntityManager;
 use MiPago\Bundle\Entity\Payment;
 use Exception;
 
@@ -133,7 +132,7 @@ XML;
     </protocolData>
 XML;
 
-    private $em = null;
+    private $pm = null;
     private $cpr = null;
     private $sender = null;
     private $format = null;
@@ -145,7 +144,7 @@ XML;
     private $suffixes = [];
 
     /**
-     * @param EntityManager   $em
+     * @param PaymentManager  $em
      * @param string          $cpr
      * @param string          $sender
      * @param string          $format
@@ -155,9 +154,9 @@ XML;
      * @param bool            $test_environment
      * @param LoggerInterface $logger
      */
-    public function __construct(EntityManager $em, $cpr, $sender, $format, $suffixes, $language, $return_url, $test_environment, $payment_modes, $logger)
+    public function __construct(\MiPago\Bundle\Doctrine\PaymentManager $pm, $cpr, $sender, $format, $suffixes, $language, $return_url, $test_environment, $payment_modes, $logger)
     {
-        $this->em = $em;
+        $this->pm = $pm;
         $this->cpr = $cpr;
         $this->sender = $sender;
         $this->format = $format;
@@ -206,7 +205,7 @@ XML;
     public function make_payment_request(
         $reference_number, $payment_limit_date, $sender, $suffix, $quantity, $language, $extra)
     {
-        $em = $this->em;
+        $pm = $this->pm;
         $cpr = $this->cpr;
         /* If sender is especified default is overwritten else takes the sender from the configuration file */
         if (null != $sender) {
@@ -259,7 +258,7 @@ XML;
             $error_code = array_key_exists('error_code', $result_fields) ? $result_fields['error_code'] : null;
             if ('pago_pagado' == $error_code) {
                 $result_fields['payment_status'] = self::PAYMENT_STATUS_OK;
-                $payment = $em->getRepository(Payment::class)->findOneBy(['registered_payment_id' => $result_fields['payment_id']]);
+                $payment = $pm->getRepository()->findOneBy(['registeredPaymentId' => $result_fields['payment_id']]);
                 $result_fields['payment'] = $payment;
             }
             throw new Exception('Already payd');
@@ -278,17 +277,17 @@ XML;
             $presentation_request_data = str_replace(array_keys($params), $params, $this->PRESENTATION_XML);
             $protocol_data = str_replace('{return_url}', $return_url, $this->PROTOCOL_DATA_XML);
 
-            $payment = $em->getRepository(Payment::class)->findOneBy(['registered_payment_id' => $registered_payment_id]);
+            $payment = $pm->getRepository()->findOneBy(['registeredPaymentId' => $registered_payment_id]);
             if (null == $payment) {
-                $payment = new Payment();
-                $payment->setReference_number($reference_number);
+                $payment = $pm->newPayment();
+                $payment->setReferenceNumber($reference_number);
                 $payment->setSuffix($suffix);
                 $payment->setQuantity($quantity);
                 $payment->setTimestamp(null);
-                $payment->setRegistered_payment_id($registered_payment_id);
+                $payment->setRegisteredPaymentId($registered_payment_id);
                 $payment->setName(array_key_exists('citizen_name', $extra) ? $extra['citizen_name'] : null);
-                $payment->setSurname_1(array_key_exists('citizen_surname_1', $extra) ? $extra['citizen_surname_1'] : null);
-                $payment->setSurname_2(array_key_exists('citizen_surname_2', $extra) ? $extra['citizen_surname_2'] : null);
+                $payment->setSurname1(array_key_exists('citizen_surname_1', $extra) ? $extra['citizen_surname_1'] : null);
+                $payment->setSurname2(array_key_exists('citizen_surname_2', $extra) ? $extra['citizen_surname_2'] : null);
                 $payment->setCity(array_key_exists('citizen_city', $extra) ? $extra['citizen_city'] : null);
                 $payment->setNif(array_key_exists('citizen_nif', $extra) ? $extra['citizen_nif'] : null);
                 $payment->setAddress(array_key_exists('citizen_address', $extra) ? $extra['citizen_address'] : null);
@@ -298,18 +297,17 @@ XML;
                 $payment->setPhone(array_key_exists('citizen_phone', $extra) ? $extra['citizen_phone'] : null);
                 $payment->setEmail(array_key_exists('citizen_email', $extra) ? $extra['citizen_email'] : null);
                 $payment->setStatus(self::PAYMENT_STATUS_INITIALIZED);
-                $em->persist($payment);
-                $em->flush();
+                $pm->savePayment($payment);
             }
             $result = [
-        'payment_status' => self::PAYMENT_STATUS_INITIALIZED,
-        'payment' => $payment,
-        'p12OidsPago' => $registered_payment_id,
-        'p12iPresentationRequestData' => $presentation_request_data,
-        'p12iProtocolData' => $protocol_data,
-        'registered_payment_id' => $registered_payment_id,
-        'serviceURL' => $SERVICE_URL,
-        ];
+                'payment_status' => self::PAYMENT_STATUS_INITIALIZED,
+                'payment' => $payment,
+                'p12OidsPago' => $registered_payment_id,
+                'p12iPresentationRequestData' => $presentation_request_data,
+                'p12iProtocolData' => $protocol_data,
+                'registered_payment_id' => $registered_payment_id,
+                'serviceURL' => $SERVICE_URL,
+            ];
 
             return $result;
         }
@@ -643,20 +641,19 @@ XML;
      */
     public function process_payment_confirmation($confirmation_payload)
     {
-        parse_str($confirmation_payload, $params);
+        \parse_str($confirmation_payload, $params);
         $fields = $this->__parse_confirmation_response($params['param1']);
-        $payment = $this->em->getRepository(Payment::class)->findOneBy([
-        'registered_payment_id' => $fields['id'],
-    ]);
+        $payment = $this->pm->getRepository()->findOneBy([
+            'registeredPaymentId' => $fields['id'],
+        ]);
         if (null === $payment) {
-            $payment = new Payment();
+            $payment = $this->pm->newPayment();
         }
-        echo $payment->__toString();
         $payment->setStatus($fields['codigo']);
         $date = new \DateTime();
         // It automatically fills quantity, suffix and reference numbers
-        $payment->setRegistered_payment_id($fields['id']);
-        $payment->setTimestamp($date->setTimestamp($fields['timestamp']));
+        $payment->setRegisteredPaymentId($fields['id']);
+        $payment->setTimestamp($date->setTimestamp($fields['timestamp'] / 1000));
         $payment->setStatusMessage($fields['message']);
         $payment->setOperationNumber($fields['operationNumber']);
         $payment->setNrc($fields['nrc']);
@@ -666,8 +663,7 @@ XML;
         $payment->setEntity($fields['entity']);
         $payment->setOffice($fields['office']);
         $payment->setMipagoResponse($params['param1']);
-        $this->em->persist($payment);
-        $this->em->flush();
+        $this->pm->savePayment($payment);
 
         return $payment;
     }

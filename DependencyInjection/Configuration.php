@@ -40,6 +40,7 @@ class Configuration implements ConfigurationInterface
                 ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
                 ->prototype('scalar')->end()
             ->end()
+            ->scalarNode('payment_class')->isRequired()->end()
         ->end()
         ;
 

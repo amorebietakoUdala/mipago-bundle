@@ -1,6 +1,6 @@
 <?php
 
-namespace MiPago\Bundle\Entity;
+namespace MiPago\Bundle\Model;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,227 +9,129 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity(repositoryClass="MiPago\Bundle\Repository\PaymentRepository")
  */
-class Payment
+class Payment implements PaymentInterface
 {
     const PAYMENT_STATUS_INITIALIZED = '01';
-
     const PAYMENT_STATUS_OK = '04';
-
     const PAYMENT_STATUS_NOK = '05';
-
     const PAYMENT_STATUS_DESCRIPTION = [
-    self::PAYMENT_STATUS_INITIALIZED => 'status.initialized',
-    self::PAYMENT_STATUS_OK => 'status.paid',
-    self::PAYMENT_STATUS_NOK => 'status.unpaid',
+        self::PAYMENT_STATUS_INITIALIZED => 'status.initialized',
+        self::PAYMENT_STATUS_OK => 'status.paid',
+        self::PAYMENT_STATUS_NOK => 'status.unpaid',
     ];
-
-    const SOURCE_MIPAGO = 0;
-    const SOURCE_OTHER = 1;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
-
+    protected $id;
     /**
      * @var \DateTime
-     *
-     * @ORM\Column(name="timestamp", type="datetime")
      */
-    private $timestamp;
-
+    protected $timestamp;
     /**
      * @var string
-     *
-     * @ORM\Column(name="reference_number", type="string", length=12)
      */
-    private $reference_number;
-
-    /**
-     * Reference Number with control digits.
-     *
-     * @var string
-     *
-     * @ORM\Column(name="reference_number_dc", type="string", length=12, nullable=true)
-     */
-    private $reference_number_DC;
-
+    protected $referenceNumber;
     /**
      * @var string
-     *
-     * @ORM\Column(name="suffix", type="string", length=3)
      */
-    private $suffix;
-
+    protected $referenceNumberDC;
+    /**
+     * @var string
+     */
+    protected $suffix;
     /**
      * @var float
-     *
-     * @ORM\Column(name="quantity", type="decimal", precision=6, scale=2 )
      */
-    private $quantity;
-
+    protected $quantity;
     /**
      * @var string
-     *
-     * @ORM\Column(name="registered_payment_id", type="string", length=42, nullable=true, unique=true)
      */
-    private $registered_payment_id;
-
+    protected $registeredPaymentId;
     /**
      * @var string
-     *
-     * @ORM\Column(name="status", type="string", nullable=true)
      */
-    private $status;
-
+    protected $status;
     /**
      * @var string
-     *
-     * @ORM\Column(name="status_message", type="string", nullable=true)
      */
-    private $statusMessage;
-
+    protected $statusMessage;
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
-    private $nrc;
-
+    protected $nrc;
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
-    private $operationNumber;
-
+    protected $operationNumber;
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
-    private $entity;
-
+    protected $entity;
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
-    private $office;
-
+    protected $office;
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
-    private $paymentDate;
-
+    protected $paymentDate;
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
-    private $paymentHour;
-
+    protected $paymentHour;
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
-    private $type;
-
+    protected $type;
     /**
      * @var string
-     *
-     * @ORM\Column(name="name", type="string", nullable=true)
      */
-    private $name;
-
+    protected $name;
     /**
      * @var string
-     *
-     * @ORM\Column(name="surname_1", type="string", nullable=true)
      */
-    private $surname_1;
-
+    protected $surname1;
     /**
      * @var string
-     *
-     * @ORM\Column(name="surname_2", type="string", nullable=true)
      */
-    private $surname_2;
-
+    protected $surname2;
     /**
      * @var string
-     *
-     * @ORM\Column(name="city", type="string", nullable=true)
      */
-    private $city;
-
+    protected $city;
     /**
      * @var string
-     *
-     * @ORM\Column(name="nif", type="string", nullable=true)
      */
-    private $nif;
-
+    protected $nif;
     /**
      * @var string
-     *
-     * @ORM\Column(name="address", type="string", nullable=true)
      */
-    private $address;
-
+    protected $address;
     /**
      * @var string
-     *
-     * @ORM\Column(name="postal_code", type="string", nullable=true)
      */
-    private $postalCode;
-
+    protected $postalCode;
     /**
      * @var string
-     *
-     * @ORM\Column(name="territory", type="string", nullable=true)
      */
-    private $territory;
-
+    protected $territory;
     /**
      * @var string
-     *
-     * @ORM\Column(name="country", type="string", nullable=true)
      */
-    private $country;
-
+    protected $country;
     /**
      * @var string
-     *
-     * @ORM\Column(name="phone", type="string", nullable=true)
      */
-    private $phone;
-
+    protected $phone;
     /**
      * @var string
-     *
-     * @ORM\Column(name="email", type="string", nullable=true)
      */
-    private $email;
-
+    protected $email;
     /**
      * @var string
-     *
-     * @ORM\Column(name="response", type="string", length=4000, nullable=true)
      */
-    private $mipagoResponse;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $source = self::SOURCE_MIPAGO;
+    protected $mipagoResponse;
 
     public function getId()
     {
@@ -241,9 +143,9 @@ class Payment
         return $this->timestamp;
     }
 
-    public function getReference_number()
+    public function getReferenceNumber()
     {
-        return $this->reference_number;
+        return $this->referenceNumber;
     }
 
     public function getSuffix()
@@ -256,9 +158,9 @@ class Payment
         return $this->quantity;
     }
 
-    public function getRegistered_payment_id()
+    public function getRegisteredPaymentId()
     {
-        return $this->registered_payment_id;
+        return $this->registeredPaymentId;
     }
 
     public function getStatus()
@@ -311,14 +213,14 @@ class Payment
         return $this->name;
     }
 
-    public function getSurname_1()
+    public function getSurname1()
     {
-        return $this->surname_1;
+        return $this->surname1;
     }
 
-    public function getSurname_2()
+    public function getSurname2()
     {
-        return $this->surname_2;
+        return $this->surname2;
     }
 
     public function getCity()
@@ -368,12 +270,18 @@ class Payment
 
     public function setTimestamp(\DateTime $timestamp = null)
     {
-        $this->timestamp = new \DateTime();
+        if (null === $timestamp) {
+            $this->timestamp = new \DateTime();
+        } else {
+            $this->timestamp = $timestamp;
+        }
+
+        return $this;
     }
 
-    public function setReference_number($reference_number)
+    public function setReferenceNumber($reference_number)
     {
-        $this->reference_number = $reference_number;
+        $this->referenceNumber = $reference_number;
     }
 
     public function setSuffix($suffix)
@@ -386,13 +294,13 @@ class Payment
         $this->quantity = $quantity;
     }
 
-    public function setRegistered_payment_id($registered_payment_id)
+    public function setRegisteredPaymentId($registeredPaymentId)
     {
-        $this->registered_payment_id = $registered_payment_id;
-        if (null !== $registered_payment_id) {
-            $this->setReference_number_DC(substr($registered_payment_id, 11, 12));
-            $this->setSuffix(substr($registered_payment_id, 24, 3));
-            $this->setQuantity(floatval(substr($registered_payment_id, 33, 6).'.'.substr($registered_payment_id, 39, 2)));
+        $this->registeredPaymentId = $registeredPaymentId;
+        if (null !== $registeredPaymentId) {
+            $this->setReferenceNumberDC(substr($registeredPaymentId, 11, 12));
+            $this->setSuffix(substr($registeredPaymentId, 24, 3));
+            $this->setQuantity(floatval(substr($registeredPaymentId, 33, 6).'.'.substr($registeredPaymentId, 39, 2)));
         }
     }
 
@@ -446,14 +354,14 @@ class Payment
         $this->name = $name;
     }
 
-    public function setSurname_1($surname_1)
+    public function setSurname1($surname1)
     {
-        $this->surname_1 = $surname_1;
+        $this->surname1 = $surname1;
     }
 
-    public function setSurname_2($surname_2)
+    public function setSurname2($surname2)
     {
-        $this->surname_2 = $surname_2;
+        $this->surname2 = $surname2;
     }
 
     public function setCity($city)
@@ -506,34 +414,22 @@ class Payment
         return self::PAYMENT_STATUS_OK === $this->status;
     }
 
-    public function getSource(): ?int
-    {
-        return $this->source;
-    }
-
-    public function setSource(int $source): self
-    {
-        $this->source = $source;
-
-        return $this;
-    }
-
     public function __toString()
     {
         return json_encode([
         'id' => $this->id,
         'timestamp' => $this->timestamp,
-        'reference_number' => $this->reference_number,
-        'reference_number_DC' => $this->reference_number_DC,
-        'operation_number' => $this->operationNumber,
+        'referenceNumber' => $this->referenceNumber,
+        'referenceNumberDC' => $this->referenceNumberDC,
+        'operationNumber' => $this->operationNumber,
         'suffix' => $this->suffix,
         'quantity' => $this->quantity,
-        'registered_payment_id' => $this->registered_payment_id,
+        'registeredPaymentId' => $this->registeredPaymentId,
         'status' => $this->status,
         'statusMessage' => $this->statusMessage,
         'name' => $this->name,
-        'surname_1' => $this->surname_1,
-        'surname_2' => $this->surname_2,
+        'surname1' => $this->surname1,
+        'surname2' => $this->surname2,
         'city' => $this->city,
         'nif' => $this->nif,
         'address' => $this->address,
@@ -543,20 +439,19 @@ class Payment
         'phone' => $this->phone,
         'email' => $this->email,
         'mipagoResponse' => $this->mipagoResponse,
-        'source' => $this->source,
     ]);
     }
 
-    public function getReference_number_DC()
+    public function getReferenceNumberDC()
     {
-        return $this->reference_number_DC;
+        return $this->referenceNumberDC;
     }
 
-    public function setReference_number_DC($reference_number_DC)
+    public function setReferenceNumberDC($referenceNumberDC)
     {
-        $this->reference_number_DC = $reference_number_DC;
-        if (null !== $reference_number_DC) {
-            $this->setReference_number($referenceNumber = substr($reference_number_DC, 0, -2));
+        $this->referenceNumberDC = $referenceNumberDC;
+        if (null !== $referenceNumberDC) {
+            $this->setReferenceNumber($referenceNumber = substr($referenceNumberDC, 0, -2));
         }
 
         return $this;
@@ -565,29 +460,28 @@ class Payment
     public function toArray()
     {
         return [
-        'id' => $this->id,
-        'timestamp' => $this->timestamp,
-        'reference_number' => $this->reference_number,
-        'reference_number_DC' => $this->reference_number_DC,
-        'operation_number' => $this->operationNumber,
-        'suffix' => $this->suffix,
-        'quantity' => $this->quantity,
-        'registered_payment_id' => $this->registered_payment_id,
-        'status' => $this->status,
-        'statusMessage' => $this->statusMessage,
-        'name' => $this->name,
-        'surname_1' => $this->surname_1,
-        'surname_2' => $this->surname_2,
-        'city' => $this->city,
-        'nif' => $this->nif,
-        'address' => $this->address,
-        'postalCode' => $this->postalCode,
-        'territory' => $this->territory,
-        'country' => $this->country,
-        'phone' => $this->phone,
-        'email' => $this->email,
-        'mipagoResponse' => $this->mipagoResponse,
-        'source' => $this->source,
-    ];
+            'id' => $this->id,
+            'timestamp' => $this->timestamp,
+            'referenceNumber' => $this->referenceNumber,
+            'referenceNumberDC' => $this->referenceNumberDC,
+            'operationNumber' => $this->operationNumber,
+            'suffix' => $this->suffix,
+            'quantity' => $this->quantity,
+            'registeredPaymentId' => $this->registeredPaymentId,
+            'status' => $this->status,
+            'statusMessage' => $this->statusMessage,
+            'name' => $this->name,
+            'surname1' => $this->surname1,
+            'surname2' => $this->surname2,
+            'city' => $this->city,
+            'nif' => $this->nif,
+            'address' => $this->address,
+            'postalCode' => $this->postalCode,
+            'territory' => $this->territory,
+            'country' => $this->country,
+            'phone' => $this->phone,
+            'email' => $this->email,
+            'mipagoResponse' => $this->mipagoResponse,
+        ];
     }
 }
