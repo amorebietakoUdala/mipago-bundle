@@ -36,13 +36,7 @@
     ],
     "scripts": {
         "post-install-cmd": [
-            "@bower-install",
-            "@npm-create-dir",
-            "@npm-install"
-        ],
-        "bower-install": "bower -V install",
-        "npm-create-dir": "mkdir -p Resources/public/node_modules",
-        "npm-install": "npm install --verbose --prefix Resources/public"
+        ]
     },
     "minimum-stability": "stable",
     "prefer-stable": true,

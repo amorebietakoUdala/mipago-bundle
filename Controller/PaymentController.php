@@ -7,11 +7,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use MiPago\Bundle\Model\Payment;
-use MiPago\Bundle\Forms\PaymentTypeForm;
 use MiPago\Bundle\Services\MiPagoService;
 use Psr\Log\LoggerInterface;
 use Exception;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class PaymentController extends AbstractController
 {
@@ -80,61 +78,6 @@ class PaymentController extends AbstractController
         $logger->debug('-->confirmationAction: End OK withJSONResponse');
 
         return new JsonResponse('OK');
-    }
-
-    /**
-     * @Route("/admin/payments", name="mipago_list_payments", methods={"GET","POST"})
-     * @IsGranted("ROLE_ADMIN")
-     */
-    public function listPaymentsAction(Request $request, LoggerInterface $logger)
-    {
-        $logger->debug('-->listPaymentsAction: Start');
-        $this->__setLocale($request);
-        $em = $this->getDoctrine()->getManager();
-        $form = $this->createForm(PaymentTypeForm::class, null, [
-            'search' => true,
-            'readonly' => false,
-        ]);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            $results = $em->getRepository(Payment::class)->findPaymentsBy($data);
-
-            return $this->render('@MiPago/default/list.html.twig', [
-                'form' => $form->createView(),
-                'payments' => $results,
-                'search' => true,
-                'readonly' => false,
-            ]);
-        }
-        $logger->debug('<--listPaymentsAction: End OK');
-
-        return $this->render('@MiPago/default/list.html.twig', [
-            'form' => $form->createView(),
-            'search' => true,
-            'readonly' => false,
-        ]);
-    }
-
-    /**
-     * @Route("/admin/payment/{id}", name="mipago_show_payment")
-     * @IsGranted("ROLE_ADMIN")
-     */
-    public function showAction(Request $request, Payment $payment, LoggerInterface $logger)
-    {
-        $logger->debug('-->showAction: Start');
-        $logger->debug('Payment number: '.$payment->getId());
-        $form = $this->createForm(PaymentTypeForm::class, $payment->toArray(), [
-            'search' => false,
-            'readonly' => true,
-        ]);
-
-        return    $this->render('@MiPago/default/show.html.twig', [
-            'form' => $form->createView(),
-            'payment' => $payment,
-            'readonly' => true,
-            'search' => false,
-        ]);
     }
 
     private function __setLocale($request)
