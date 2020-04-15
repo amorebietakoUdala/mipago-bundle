@@ -9,7 +9,6 @@
 namespace MiPago\Bundle\Services;
 
 use Symfony\Component\DomCrawler\Crawler;
-use Doctrine\ORM\EntityManager;
 use MiPago\Bundle\Entity\Payment;
 use Exception;
 
@@ -133,7 +132,7 @@ XML;
     </protocolData>
 XML;
 
-    private $em = null;
+    private $pm = null;
     private $cpr = null;
     private $sender = null;
     private $format = null;
@@ -145,7 +144,7 @@ XML;
     private $suffixes = [];
 
     /**
-     * @param EntityManager   $em
+     * @param PaymentManager  $em
      * @param string          $cpr
      * @param string          $sender
      * @param string          $format
@@ -155,9 +154,9 @@ XML;
      * @param bool            $test_environment
      * @param LoggerInterface $logger
      */
-    public function __construct(EntityManager $em, $cpr, $sender, $format, $suffixes, $language, $return_url, $test_environment, $payment_modes, $logger)
+    public function __construct(\MiPago\Bundle\Doctrine\PaymentManager $pm, $cpr, $sender, $format, $suffixes, $language, $return_url, $test_environment, $payment_modes, $logger)
     {
-        $this->em = $em;
+        $this->pm = $pm;
         $this->cpr = $cpr;
         $this->sender = $sender;
         $this->format = $format;
@@ -206,7 +205,7 @@ XML;
     public function make_payment_request(
         $reference_number, $payment_limit_date, $sender, $suffix, $quantity, $language, $extra)
     {
-        $em = $this->em;
+        $pm = $this->pm;
         $cpr = $this->cpr;
         /* If sender is especified default is overwritten else takes the sender from the configuration file */
         if (null != $sender) {
@@ -234,14 +233,14 @@ XML;
         if ('521' != $format) {
             throw new Exception('We only accept payments with Format 521');
         }
-        
+
         $suffixesArray = [];
-        if ( 0 !== strlen($suffixes[0]) ) {
-            $suffixesArray = explode(",",$suffixes[0]);
+        if (0 !== strlen($suffixes[0])) {
+            $suffixesArray = explode(',', $suffixes[0]);
         }
         $payment_modesArray = [];
-        if ( 0 !== strlen($payment_modes[0]) ) {
-            $payment_modesArray = explode(",",$payment_modes[0]);
+        if (0 !== strlen($payment_modes[0])) {
+            $payment_modesArray = explode(',', $payment_modes[0]);
         }
         if (count($suffixesArray) > 0 && !in_array($suffix, $suffixesArray)) {
             throw new Exception('Suffix, not allowed. The allowed suffixes are: %suffixes%');
@@ -259,7 +258,7 @@ XML;
             $error_code = array_key_exists('error_code', $result_fields) ? $result_fields['error_code'] : null;
             if ('pago_pagado' == $error_code) {
                 $result_fields['payment_status'] = self::PAYMENT_STATUS_OK;
-                $payment = $em->getRepository(Payment::class)->findOneBy(['registered_payment_id' => $result_fields['payment_id']]);
+                $payment = $pm->getRepository()->findOneBy(['registeredPaymentId' => $result_fields['payment_id']]);
                 $result_fields['payment'] = $payment;
             }
             throw new Exception('Already payd');
@@ -278,17 +277,17 @@ XML;
             $presentation_request_data = str_replace(array_keys($params), $params, $this->PRESENTATION_XML);
             $protocol_data = str_replace('{return_url}', $return_url, $this->PROTOCOL_DATA_XML);
 
-            $payment = $em->getRepository(Payment::class)->findOneBy(['registered_payment_id' => $registered_payment_id]);
+            $payment = $pm->getRepository()->findOneBy(['registeredPaymentId' => $registered_payment_id]);
             if (null == $payment) {
-                $payment = new Payment();
-                $payment->setReference_number($reference_number);
+                $payment = $pm->newPayment();
+                $payment->setReferenceNumber($reference_number);
                 $payment->setSuffix($suffix);
                 $payment->setQuantity($quantity);
                 $payment->setTimestamp(null);
-                $payment->setRegistered_payment_id($registered_payment_id);
+                $payment->setRegisteredPaymentId($registered_payment_id);
                 $payment->setName(array_key_exists('citizen_name', $extra) ? $extra['citizen_name'] : null);
-                $payment->setSurname_1(array_key_exists('citizen_surname_1', $extra) ? $extra['citizen_surname_1'] : null);
-                $payment->setSurname_2(array_key_exists('citizen_surname_2', $extra) ? $extra['citizen_surname_2'] : null);
+                $payment->setSurname1(array_key_exists('citizen_surname_1', $extra) ? $extra['citizen_surname_1'] : null);
+                $payment->setSurname2(array_key_exists('citizen_surname_2', $extra) ? $extra['citizen_surname_2'] : null);
                 $payment->setCity(array_key_exists('citizen_city', $extra) ? $extra['citizen_city'] : null);
                 $payment->setNif(array_key_exists('citizen_nif', $extra) ? $extra['citizen_nif'] : null);
                 $payment->setAddress(array_key_exists('citizen_address', $extra) ? $extra['citizen_address'] : null);
@@ -298,18 +297,17 @@ XML;
                 $payment->setPhone(array_key_exists('citizen_phone', $extra) ? $extra['citizen_phone'] : null);
                 $payment->setEmail(array_key_exists('citizen_email', $extra) ? $extra['citizen_email'] : null);
                 $payment->setStatus(self::PAYMENT_STATUS_INITIALIZED);
-                $em->persist($payment);
-                $em->flush();
+                $pm->savePayment($payment);
             }
             $result = [
-        'payment_status' => self::PAYMENT_STATUS_INITIALIZED,
-        'payment' => $payment,
-        'p12OidsPago' => $registered_payment_id,
-        'p12iPresentationRequestData' => $presentation_request_data,
-        'p12iProtocolData' => $protocol_data,
-        'registered_payment_id' => $registered_payment_id,
-        'serviceURL' => $SERVICE_URL,
-        ];
+                'payment_status' => self::PAYMENT_STATUS_INITIALIZED,
+                'payment' => $payment,
+                'p12OidsPago' => $registered_payment_id,
+                'p12iPresentationRequestData' => $presentation_request_data,
+                'p12iProtocolData' => $protocol_data,
+                'registered_payment_id' => $registered_payment_id,
+                'serviceURL' => $SERVICE_URL,
+            ];
 
             return $result;
         }
@@ -439,7 +437,7 @@ XML;
         '{pdf_xslt_url}' => array_key_exists('pdf_xslt_url', $extra) ? $extra['pdf_xslt_url'] : '',
     ];
         $initialization_xml = str_replace(array_keys($params), $params, $this->template);
-        
+
         $url = $INITIALIZATION_URL;
         $data = $initialization_xml;
         $options = array(
@@ -571,7 +569,7 @@ XML;
         $fields = [];
         $pago_id = null;
         if ($peticion->count() > 0) {
-            $pago_id = $peticion->extract('id')[0];
+            $pago_id = $peticion->attr('id');
             if ($peticion->filterXPath('.//validacion')->count() > 0) {
                 $error_code = $peticion->filterXPath('.//codigoError');
                 $validation_message = $peticion->filterXPath('.//mensajeValidacion');
@@ -598,31 +596,39 @@ XML;
      */
     private function __parse_confirmation_response($xmlresponse)
     {
-        $root = new Crawler($xmlresponse);
-        $text_message = $root->filterXPath('.//estado/mensajes/mensaje/texto')->extract('_text');
-        if (count($text_message)) {
-            $text_message = $text_message[0];
+        $errores = [];
+        $xml = simplexml_load_string($xmlresponse, 'SimpleXMLElement', LIBXML_NOCDATA | LIBXML_NOBLANKS);
+        if (null !== $xml->estado->mensajes->mensaje) {
+            foreach ($xml->estado->mensajes->mensaje as $mensaje) {
+                $errores[] = trim($mensaje->texto->es);
+            }
+        }
+        if (count($errores) > 0) {
+            $text_message = '';
+            foreach ($errores as $error) {
+                $text_message = $text_message.$error.'<br>';
+            }
         } else {
             $text_message = null;
         }
-
+        $root = new Crawler($xmlresponse);
         $fields = [
-        'id' => ($root->filterXPath('.//id')->count() > 0) ? $root->filterXPath('.//id')->text() : null,
-        'payment_id' => ($root->filterXPath('.//paymentid')->count() > 0) ? $root->filterXPath('.//paymentid')->text() : null,
-        'referenceNumberDC' => ($root->filterXPath('.//referencia')->count() > 0) ? $root->filterXPath('.//referencia')->text() : null,
-        'codigo' => ($root->filterXPath('.//estado/codigo')->count() > 0) ? $root->filterXPath('.//estado/codigo')->text() : null,
-        'quantity' => ($root->filterXPath('.//importe')->count() > 0) ? $root->filterXPath('.//importe')->text() : null,
-        'operationNumber' => ($root->filterXPath('.//numerooperacion')->count() > 0) ? $root->filterXPath('.//numerooperacion')->text() : null,
-        'nrc' => ($root->filterXPath('.//nrc')->count() > 0) ? $root->filterXPath('.//nrc')->text() : null,
-        'paymentDate' => ($root->filterXPath('.//fechapago')->count() > 0) ? $root->filterXPath('.//fechapago')->text() : null,
-        'paymentHour' => ($root->filterXPath('.//horapago')->count() > 0) ? $root->filterXPath('.//horapago')->text() : null,
-        'timestamp' => ($root->filterXPath('.//timestamp')->count() > 0) ? $root->filterXPath('.//timestamp')->text() : null,
-        'type' => ($root->filterXPath('.//tipo')->count() > 0) ? $root->filterXPath('.//tipo')->text() : null,
-        'entity' => ($root->filterXPath('.//entidad')->count() > 0) ? $root->filterXPath('.//entidad')->text() : null,
-        'office' => ($root->filterXPath('.//oficina')->count() > 0) ? $root->filterXPath('.//oficina')->text() : null,
-        'message' => $text_message,
-    ];
-        //	dump($fields);die;
+            'id' => ($root->filterXPath('.//id')->count() > 0) ? $root->filterXPath('.//id')->text() : null,
+            'payment_id' => ($root->filterXPath('.//paymentid')->count() > 0) ? $root->filterXPath('.//paymentid')->text() : null,
+            'referenceNumberDC' => ($root->filterXPath('.//referencia')->count() > 0) ? $root->filterXPath('.//referencia')->text() : null,
+            'codigo' => ($root->filterXPath('.//estado/codigo')->count() > 0) ? $root->filterXPath('.//estado/codigo')->text() : null,
+            'quantity' => ($root->filterXPath('.//importe')->count() > 0) ? $root->filterXPath('.//importe')->text() : null,
+            'operationNumber' => ($root->filterXPath('.//numerooperacion')->count() > 0) ? $root->filterXPath('.//numerooperacion')->text() : null,
+            'nrc' => ($root->filterXPath('.//nrc')->count() > 0) ? $root->filterXPath('.//nrc')->text() : null,
+            'paymentDate' => ($root->filterXPath('.//fechapago')->count() > 0) ? $root->filterXPath('.//fechapago')->text() : null,
+            'paymentHour' => ($root->filterXPath('.//horapago')->count() > 0) ? $root->filterXPath('.//horapago')->text() : null,
+            'timestamp' => ($root->filterXPath('.//timestamp')->count() > 0) ? $root->filterXPath('.//timestamp')->text() : null,
+            'type' => ($root->filterXPath('.//tipo')->count() > 0) ? $root->filterXPath('.//tipo')->text() : null,
+            'entity' => ($root->filterXPath('.//entidad')->count() > 0) ? $root->filterXPath('.//entidad')->text() : null,
+            'office' => ($root->filterXPath('.//oficina')->count() > 0) ? $root->filterXPath('.//oficina')->text() : null,
+            'message' => $text_message,
+        ];
+
         return $fields;
     }
 
@@ -635,23 +641,19 @@ XML;
      */
     public function process_payment_confirmation($confirmation_payload)
     {
-        parse_str($confirmation_payload, $params);
-        //	dump($params['param1']);die;
+        \parse_str($confirmation_payload, $params);
         $fields = $this->__parse_confirmation_response($params['param1']);
-//        dump($fields);
-//        die;
-        $payment = $this->em->getRepository(Payment::class)->findOneBy([
-        'registered_payment_id' => $fields['id'],
-    ]);
+        $payment = $this->pm->getRepository()->findOneBy([
+            'registeredPaymentId' => $fields['id'],
+        ]);
         if (null === $payment) {
-            $payment = new Payment();
+            $payment = $this->pm->newPayment();
         }
-        echo $payment->__toString();
         $payment->setStatus($fields['codigo']);
         $date = new \DateTime();
         // It automatically fills quantity, suffix and reference numbers
-        $payment->setRegistered_payment_id($fields['id']);
-        $payment->setTimestamp($date->setTimestamp($fields['timestamp']));
+        $payment->setRegisteredPaymentId($fields['id']);
+        $payment->setTimestamp($date->setTimestamp($fields['timestamp'] / 1000));
         $payment->setStatusMessage($fields['message']);
         $payment->setOperationNumber($fields['operationNumber']);
         $payment->setNrc($fields['nrc']);
@@ -661,14 +663,13 @@ XML;
         $payment->setEntity($fields['entity']);
         $payment->setOffice($fields['office']);
         $payment->setMipagoResponse($params['param1']);
-        $this->em->persist($payment);
-        $this->em->flush();
+        $this->pm->savePayment($payment);
 
         return $payment;
     }
-    
-    public function getSuffixes() {
+
+    public function getSuffixes()
+    {
         return $this->suffixes;
     }
-
 }

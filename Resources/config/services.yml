@@ -11,9 +11,14 @@ services:
     MiPago\Bundle\Controller\PaymentController:
         tags: ['controller.service_arguments']
         public: true
-        arguments: ['%mipago.forwardController%']
+        arguments: ['%forwardController%']
+        
+
+    MiPago\Bundle\Doctrine\PaymentManager:
+        class: MiPago\Bundle\Doctrine\PaymentManager
+        arguments: ['@doctrine.orm.entity_manager','%payment_class%']
 
     MiPago\Bundle\Services\MiPagoService:
         class: MiPago\Bundle\Services\MiPagoService
         public: true
-        arguments: ['@doctrine.orm.entity_manager','%cpr%','%sender%','%format%','%suffixes%','%language%', '%return_url%', '%test_environment%', '%payment_modes%', '@monolog.logger']
+        arguments: ['@MiPago\Bundle\Doctrine\PaymentManager','%cpr%','%sender%','%format%','%suffixes%','%language%', '%return_url%', '%test_environment%', '%payment_modes%', '@monolog.logger']
