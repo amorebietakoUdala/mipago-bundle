@@ -19,9 +19,9 @@ use Exception;
  */
 class MiPagoService
 {
-    const TEST_ENVIRON_INITIALIZATION_URL = 'https://www.testpago.euskadi.eus/p12gWar/p12gRPCDispatcherServlet';
+    const TEST_ENVIRON_INITIALIZATION_URL = 'https://mipago.sandbox.euskadi.eus/p12gWar/p12gRPCDispatcherServlet';
 
-    const TEST_ENVIRON_SERVICE_URL = 'https://www.testpago.euskadi.eus/p12iWar/p12iRPCDispatcherServlet';
+    const TEST_ENVIRON_SERVICE_URL = 'https://mipago.sandbox.euskadi.eus/p12iWar/p12iRPCDispatcherServlet';
 
     const PROD_ENVIRON_INITIALIZATION_URL = 'https://www.euskadi.eus/p12gWar/p12gRPCDispatcherServlet';
 
