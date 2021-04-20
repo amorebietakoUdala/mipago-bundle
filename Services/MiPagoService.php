@@ -39,10 +39,10 @@ class MiPagoService
     const PAYMENT_STATUS_NOK = '05';
 
     const PAYMENT_STATUS_MESSAGES = [
-    self::PAYMENT_STATUS_NOT_INITIALIZED => 'Payment could not be initialized. Probably incorrect suffix',
-    self::PAYMENT_STATUS_INITIALIZED => 'Payment initialized. Sended to MiPago.',
-    self::PAYMENT_STATUS_OK => 'Payment paid succesfully.',
-    self::PAYMENT_STATUS_NOK => 'The was an error during payment.',
+        self::PAYMENT_STATUS_NOT_INITIALIZED => 'Payment could not be initialized. Probably incorrect suffix',
+        self::PAYMENT_STATUS_INITIALIZED => 'Payment initialized. Sended to MiPago.',
+        self::PAYMENT_STATUS_OK => 'Payment paid succesfully.',
+        self::PAYMENT_STATUS_NOK => 'The was an error during payment.',
     ];
 
     public $template = null;
@@ -166,7 +166,7 @@ XML;
         $this->payment_modes = $payment_modes;
         $this->test_environment = $test_environment;
         $this->logger = $logger;
-        $this->template = file_get_contents(__DIR__.'/../Resources/config/template.xml');
+        $this->template = file_get_contents(__DIR__ . '/../Resources/config/template.xml');
     }
 
     /**
@@ -203,8 +203,14 @@ XML;
      * @throws Exception
      */
     public function make_payment_request(
-        $reference_number, $payment_limit_date, $sender, $suffix, $quantity, $language, $extra)
-    {
+        $reference_number,
+        $payment_limit_date,
+        $sender,
+        $suffix,
+        $quantity,
+        $language,
+        $extra
+    ) {
         $pm = $this->pm;
         $cpr = $this->cpr;
         /* If sender is especified default is overwritten else takes the sender from the configuration file */
@@ -271,9 +277,9 @@ XML;
                 $payment_modes_string .= str_replace('{}', $payment_mode, "<paymentMode oid='{}'/>");
             }
             $params = [
-        '{language}' => $language,
-        '{payment_mode}' => $payment_modes_string,
-        ];
+                '{language}' => $language,
+                '{payment_mode}' => $payment_modes_string,
+            ];
             $presentation_request_data = str_replace(array_keys($params), $params, $this->PRESENTATION_XML);
             $protocol_data = str_replace('{return_url}', $return_url, $this->PROTOCOL_DATA_XML);
 
@@ -344,18 +350,25 @@ XML;
         }
 
         $payment_identification = $this->__calculate_payment_identification_notebook_c60(
-        $payment_limit_date, $suffix
+            $payment_limit_date,
+            $suffix
         );
 
         $quantity_string = str_pad($quantity * 100, 8, '0', STR_PAD_LEFT);
 
         $reference_number_with_control_digits = $this->__calculate_reference_number_with_control_digits_notebook_60(
-        $sender, $reference_number, $payment_identification, $quantity_string
-    );
+            $sender,
+            $reference_number,
+            $payment_identification,
+            $quantity_string
+        );
 
         $payment_code = $this->__build_payment_code_notebook_60(
-        $sender, $reference_number_with_control_digits, $payment_identification, $quantity_string
-    );
+            $sender,
+            $reference_number_with_control_digits,
+            $payment_identification,
+            $quantity_string
+        );
 
         $message_1 = '';
         if (array_key_exists('message_1', $extra)) {
@@ -406,48 +419,48 @@ XML;
         }
 
         $params = [
-        '{code}' => $payment_code,
-        '{cpr}' => $cpr,
-        '{suffix}' => $suffix,
-        '{quantity}' => $quantity_string,
-        '{payment_identification}' => $payment_identification,
-        '{end_date}' => $payment_limit_date->format('dmY'),
-        '{format}' => $format,
-        '{sender}' => $sender,
-        '{reference_with_control}' => $reference_number_with_control_digits,
-        '{reference}' => $reference_number,
-        '{message_1}' => $message_1,
-        '{message_2}' => $message_2,
-        '{message_3}' => $message_3,
-        '{message_4}' => $message_4,
-        '{message_payment_title}' => $message_payment_title,
-        '{mipago_payment_description}' => $mipago_payment_description,
-        '{citizen_name}' => array_key_exists('citizen_name', $extra) ? $extra['citizen_name'] : '',
-        '{citizen_surname_1}' => array_key_exists('citizen_surname_1', $extra) ? $extra['citizen_surname_1'] : '',
-        '{citizen_surname_2}' => array_key_exists('citizen_surname_2', $extra) ? $extra['citizen_surname_2'] : '',
-        '{citizen_city}' => array_key_exists('citizen_city', $extra) ? $extra['citizen_city'] : '',
-        '{citizen_nif}' => array_key_exists('citizen_nif', $extra) ? $extra['citizen_nif'] : '',
-        '{citizen_address}' => array_key_exists('citizen_address', $extra) ? $extra['citizen_address'] : '',
-        '{citizen_postal_code}' => array_key_exists('citizen_postal_code', $extra) ? $extra['citizen_postal_code'] : '',
-        '{citizen_territory}' => array_key_exists('citizen_territory', $extra) ? $extra['citizen_territory'] : '',
-        '{citizen_country}' => array_key_exists('citizen_country', $extra) ? $extra['citizen_country'] : '',
-        '{citizen_phone}' => array_key_exists('citizen_phone', $extra) ? $extra['citizen_phone'] : '',
-        '{citizen_email}' => array_key_exists('citizen_email', $extra) ? $extra['citizen_email'] : '',
-        '{logo_urls}' => array_key_exists('logo_urls', $extra) ? $extra['logo_urls'] : '',
-        '{pdf_xslt_url}' => array_key_exists('pdf_xslt_url', $extra) ? $extra['pdf_xslt_url'] : '',
-    ];
+            '{code}' => $payment_code,
+            '{cpr}' => $cpr,
+            '{suffix}' => $suffix,
+            '{quantity}' => $quantity_string,
+            '{payment_identification}' => $payment_identification,
+            '{end_date}' => $payment_limit_date->format('dmY'),
+            '{format}' => $format,
+            '{sender}' => $sender,
+            '{reference_with_control}' => $reference_number_with_control_digits,
+            '{reference}' => $reference_number,
+            '{message_1}' => $message_1,
+            '{message_2}' => $message_2,
+            '{message_3}' => $message_3,
+            '{message_4}' => $message_4,
+            '{message_payment_title}' => $message_payment_title,
+            '{mipago_payment_description}' => $mipago_payment_description,
+            '{citizen_name}' => array_key_exists('citizen_name', $extra) ? $extra['citizen_name'] : '',
+            '{citizen_surname_1}' => array_key_exists('citizen_surname_1', $extra) ? $extra['citizen_surname_1'] : '',
+            '{citizen_surname_2}' => array_key_exists('citizen_surname_2', $extra) ? $extra['citizen_surname_2'] : '',
+            '{citizen_city}' => array_key_exists('citizen_city', $extra) ? $extra['citizen_city'] : '',
+            '{citizen_nif}' => array_key_exists('citizen_nif', $extra) ? $extra['citizen_nif'] : '',
+            '{citizen_address}' => array_key_exists('citizen_address', $extra) ? $extra['citizen_address'] : '',
+            '{citizen_postal_code}' => array_key_exists('citizen_postal_code', $extra) ? $extra['citizen_postal_code'] : '',
+            '{citizen_territory}' => array_key_exists('citizen_territory', $extra) ? $extra['citizen_territory'] : '',
+            '{citizen_country}' => array_key_exists('citizen_country', $extra) ? $extra['citizen_country'] : '',
+            '{citizen_phone}' => array_key_exists('citizen_phone', $extra) ? $extra['citizen_phone'] : '',
+            '{citizen_email}' => array_key_exists('citizen_email', $extra) ? $extra['citizen_email'] : '',
+            '{logo_urls}' => array_key_exists('logo_urls', $extra) ? $extra['logo_urls'] : '',
+            '{pdf_xslt_url}' => array_key_exists('pdf_xslt_url', $extra) ? $extra['pdf_xslt_url'] : '',
+        ];
         $initialization_xml = str_replace(array_keys($params), $params, $this->template);
 
         $url = $INITIALIZATION_URL;
         $data = $initialization_xml;
         $options = array(
-    'http' => array(
-        'method' => 'POST',
-        'header' => "Content-type: application/x-www-form-urlencoded\r\n"
-            .'Content-Length: '.strlen('xmlRPC='.trim($data))."\r\n",
-        'content' => 'xmlRPC='.trim($data),
-        ),
-    );
+            'http' => array(
+                'method' => 'POST',
+                'header' => "Content-type: application/x-www-form-urlencoded\r\n"
+                    . 'Content-Length: ' . strlen('xmlRPC=' . trim($data)) . "\r\n",
+                'content' => 'xmlRPC=' . trim($data),
+            ),
+        );
         $context = stream_context_create($options);
         $result = file_get_contents($url, false, $context);
 
@@ -476,12 +489,12 @@ XML;
         $year_ordinal_day = $limit_date->format('z') + 1;
         $pi = '{period}{suffix}{year_two_digits}{year_last_digit}{year_ordinal_day}';
         $params = [
-        '{period}' => $period,
-        '{suffix}' => str_pad($suffix, 3, '0', STR_PAD_RIGHT),
-        '{year_two_digits}' => $year_two_digits,
-        '{year_last_digit}' => $year_last_digit,
-        '{year_ordinal_day}' => str_pad($year_ordinal_day, 3, '0', STR_PAD_LEFT),
-    ];
+            '{period}' => $period,
+            '{suffix}' => str_pad($suffix, 3, '0', STR_PAD_RIGHT),
+            '{year_two_digits}' => $year_two_digits,
+            '{year_last_digit}' => $year_last_digit,
+            '{year_ordinal_day}' => str_pad($year_ordinal_day, 3, '0', STR_PAD_LEFT),
+        ];
 
         return str_replace(array_keys($params), $params, $pi);
     }
@@ -507,8 +520,11 @@ XML;
      * @param string $quantity
      */
     private function __calculate_reference_number_with_control_digits_notebook_60(
-         $sender, $reference_number, $payment_identification, $quantity)
-    {
+        $sender,
+        $reference_number,
+        $payment_identification,
+        $quantity
+    ) {
         if (10 != strlen($reference_number)) {
             throw new Exception('Invalid Reference Number');
         }
@@ -520,7 +536,7 @@ XML;
         $decimals = explode('.', (string) $division_result);
         $first_two_decimals = substr($decimals[1], 0, 2);
         $control_digits = 99 - intval($first_two_decimals);
-        $rncd = $reference_number.str_pad($control_digits, 2, '0', STR_PAD_LEFT);
+        $rncd = $reference_number . str_pad($control_digits, 2, '0', STR_PAD_LEFT);
 
         return $rncd;
     }
@@ -544,11 +560,11 @@ XML;
     {
         $payment_code = '90521{sender}{reference_number}{payment_identification}{quantity}0';
         $params = [
-        '{sender}' => str_pad($sender, 6, '0', STR_PAD_RIGHT),
-        '{reference_number}' => str_pad($reference_number, 12, '0', STR_PAD_RIGHT),
-        '{payment_identification}' => str_pad($payment_identification, 10, '0', STR_PAD_RIGHT),
-        '{quantity}' => str_pad($quantity, 8, '0', STR_PAD_RIGHT),
-    ];
+            '{sender}' => str_pad($sender, 6, '0', STR_PAD_RIGHT),
+            '{reference_number}' => str_pad($reference_number, 12, '0', STR_PAD_RIGHT),
+            '{payment_identification}' => str_pad($payment_identification, 10, '0', STR_PAD_RIGHT),
+            '{quantity}' => str_pad($quantity, 8, '0', STR_PAD_RIGHT),
+        ];
 
         return str_replace(array_keys($params), $params, $payment_code);
     }
@@ -597,7 +613,11 @@ XML;
     private function __parse_confirmation_response($xmlresponse)
     {
         $errores = [];
+        if (!mb_check_encoding($xmlresponse, "UTF8")) {
+            $xmlresponse = mb_convert_encoding($xmlresponse, "UTF8", "Windows-1252");
+        }
         $xml = simplexml_load_string($xmlresponse, 'SimpleXMLElement', LIBXML_NOCDATA | LIBXML_NOBLANKS);
+
         if (null !== $xml->estado->mensajes->mensaje) {
             foreach ($xml->estado->mensajes->mensaje as $mensaje) {
                 $errores[] = trim($mensaje->texto->es);
@@ -606,7 +626,7 @@ XML;
         if (count($errores) > 0) {
             $text_message = '';
             foreach ($errores as $error) {
-                $text_message = $text_message.$error.'<br>';
+                $text_message = $text_message . $error . '<br>';
             }
         } else {
             $text_message = null;
