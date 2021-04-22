@@ -613,9 +613,6 @@ XML;
     private function __parse_confirmation_response($xmlresponse)
     {
         $errores = [];
-        if (!mb_check_encoding($xmlresponse, "UTF8")) {
-            $xmlresponse = mb_convert_encoding($xmlresponse, "UTF8", "Windows-1252");
-        }
         $xml = simplexml_load_string($xmlresponse, 'SimpleXMLElement', LIBXML_NOCDATA | LIBXML_NOBLANKS);
 
         if (null !== $xml->estado->mensajes->mensaje) {
@@ -662,6 +659,9 @@ XML;
     public function process_payment_confirmation($confirmation_payload)
     {
         \parse_str($confirmation_payload, $params);
+        if (!mb_check_encoding($params['param1'], "UTF8")) {
+            $params['param1'] = mb_convert_encoding($params['param1'], "UTF8", "Windows-1252");
+        }
         $fields = $this->__parse_confirmation_response($params['param1']);
         $payment = $this->pm->getRepository()->findOneBy([
             'registeredPaymentId' => $fields['id'],
