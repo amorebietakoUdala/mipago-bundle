@@ -25,7 +25,8 @@ class MiPagoService
 
     const PROD_ENVIRON_INITIALIZATION_URL = 'https://www.euskadi.eus/p12gWar/p12gRPCDispatcherServlet';
 
-    const PROD_ENVIRON_SERVICE_URL = 'https://www.euskadi.eus/p12iWar/p12iRPCDispatcherServlet';
+    const PROD_ENVIRON_SERVICE_URL = 'https://www.euskadi.eus/y22-pay/es/p12uiPaymentWar/p12uiRPCDispatcherServlet';
+    #const PROD_ENVIRON_SERVICE_URL = 'https://www.euskadi.eus/p12iWar/p12iRPCDispatcherServlet';
 
     /**
      * PREINICIALIZAR = "00";.
@@ -460,6 +461,11 @@ XML;
                     . 'Content-Length: ' . strlen('xmlRPC=' . trim($data)) . "\r\n",
                 'content' => 'xmlRPC=' . trim($data),
             ),
+            "ssl"=>array(
+                "allow_self_signed"=>true,
+                "verify_peer"=>false,
+                "verify_peer_name"=>false,
+             ),
         );
         $context = stream_context_create($options);
         $result = file_get_contents($url, false, $context);
