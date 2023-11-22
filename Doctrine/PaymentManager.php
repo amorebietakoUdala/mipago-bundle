@@ -8,7 +8,7 @@
 
 namespace MiPago\Bundle\Doctrine;
 
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use Doctrine\Persistence\ObjectRepository;
 
 // use MiPago\Bundle\Model\UserManager as BaseUserManager;
