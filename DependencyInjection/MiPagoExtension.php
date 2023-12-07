@@ -2,6 +2,9 @@
 
 namespace MiPago\Bundle\DependencyInjection;
 
+use MiPago\Bundle\Services\MiPagoService;
+use MiPago\Bundle\Controller\PaymentController;
+use MiPago\Bundle\Doctrine\PaymentManager;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
@@ -25,7 +28,7 @@ class MiPagoExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
-        $definition = $container->getDefinition('MiPago\Bundle\Services\MiPagoService');
+        $definition = $container->getDefinition(MiPagoService::class);
         $definition->replaceArgument(1, $config['cpr']);
         $definition->replaceArgument(2, $config['sender']);
         $definition->replaceArgument(3, $config['format']);
@@ -35,10 +38,10 @@ class MiPagoExtension extends Extension
         $definition->replaceArgument(7, $config['test_environment']);
         $definition->replaceArgument(8, $config['payment_modes']);
 
-        $definition2 = $container->getDefinition('MiPago\Bundle\Controller\PaymentController');
+        $definition2 = $container->getDefinition(PaymentController::class);
         $definition2->replaceArgument(0, $config['forwardController']);
 
-        $definition3 = $container->getDefinition('MiPago\Bundle\Doctrine\PaymentManager');
+        $definition3 = $container->getDefinition(PaymentManager::class);
         $definition3->replaceArgument(1, $config['payment_class']);
     }
 }

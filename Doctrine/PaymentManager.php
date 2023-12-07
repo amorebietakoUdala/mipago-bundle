@@ -8,6 +8,7 @@
 
 namespace MiPago\Bundle\Doctrine;
 
+use MiPago\Bundle\Model\PaymentInterface;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Persistence\ObjectRepository;
 
@@ -25,19 +26,16 @@ class PaymentManager
     protected $objectManager;
 
     /**
-     * @var string
+     * @param string $class
      */
-    private $class;
-
-    public function __construct(ObjectManager $om, $class)
+    public function __construct(ObjectManager $om, private $class)
     {
         $this->objectManager = $om;
-        $this->class = $class;
     }
 
     protected function getClass()
     {
-        if (false !== strpos($this->class, ':')) {
+        if (str_contains($this->class, ':')) {
             $metadata = $this->objectManager->getClassMetadata($this->class);
             $this->class = $metadata->getName();
         }
@@ -61,7 +59,7 @@ class PaymentManager
         return $payment;
     }
 
-    public function savePayment(\MiPago\Bundle\Model\PaymentInterface $payment)
+    public function savePayment(PaymentInterface $payment)
     {
         $this->objectManager->persist($payment);
         $this->objectManager->flush();
