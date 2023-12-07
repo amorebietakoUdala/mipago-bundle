@@ -6,15 +6,14 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Auditoria.
- *
- * @ORM\Entity(repositoryClass="MiPago\Bundle\Repository\PaymentRepository")
  */
-class Payment implements PaymentInterface
+#[ORM\Entity(repositoryClass: 'MiPago\Bundle\Repository\PaymentRepository')]
+class Payment implements PaymentInterface, \Stringable
 {
-    const PAYMENT_STATUS_INITIALIZED = '01';
-    const PAYMENT_STATUS_OK = '04';
-    const PAYMENT_STATUS_NOK = '05';
-    const PAYMENT_STATUS_DESCRIPTION = [
+    final public const PAYMENT_STATUS_INITIALIZED = '01';
+    final public const PAYMENT_STATUS_OK = '04';
+    final public const PAYMENT_STATUS_NOK = '05';
+    final public const PAYMENT_STATUS_DESCRIPTION = [
         self::PAYMENT_STATUS_INITIALIZED => 'status.initialized',
         self::PAYMENT_STATUS_OK => 'status.paid',
         self::PAYMENT_STATUS_NOK => 'status.unpaid',
@@ -298,9 +297,9 @@ class Payment implements PaymentInterface
     {
         $this->registeredPaymentId = $registeredPaymentId;
         if (null !== $registeredPaymentId) {
-            $this->setReferenceNumberDC(substr($registeredPaymentId, 11, 12));
-            $this->setSuffix(substr($registeredPaymentId, 24, 3));
-            $this->setQuantity(floatval(substr($registeredPaymentId, 33, 6).'.'.substr($registeredPaymentId, 39, 2)));
+            $this->setReferenceNumberDC(substr((string) $registeredPaymentId, 11, 12));
+            $this->setSuffix(substr((string) $registeredPaymentId, 24, 3));
+            $this->setQuantity(floatval(substr((string) $registeredPaymentId, 33, 6).'.'.substr((string) $registeredPaymentId, 39, 2)));
         }
     }
 
@@ -414,7 +413,7 @@ class Payment implements PaymentInterface
         return self::PAYMENT_STATUS_OK === $this->status;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return json_encode([
         'id' => $this->id,
@@ -439,7 +438,7 @@ class Payment implements PaymentInterface
         'phone' => $this->phone,
         'email' => $this->email,
         'mipagoResponse' => $this->mipagoResponse,
-    ]);
+    ], JSON_THROW_ON_ERROR);
     }
 
     public function getReferenceNumberDC()
@@ -451,7 +450,7 @@ class Payment implements PaymentInterface
     {
         $this->referenceNumberDC = $referenceNumberDC;
         if (null !== $referenceNumberDC) {
-            $this->setReferenceNumber($referenceNumber = substr($referenceNumberDC, 0, -2));
+            $this->setReferenceNumber($referenceNumber = substr((string) $referenceNumberDC, 0, -2));
         }
 
         return $this;

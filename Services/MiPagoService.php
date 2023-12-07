@@ -19,27 +19,27 @@ use Exception;
  */
 class MiPagoService
 {
-    const TEST_ENVIRON_INITIALIZATION_URL = 'https://mipago.sandbox.euskadi.eus/p12gWar/p12gRPCDispatcherServlet';
+    final public const TEST_ENVIRON_INITIALIZATION_URL = 'https://mipago.sandbox.euskadi.eus/p12gWar/p12gRPCDispatcherServlet';
 
-    const TEST_ENVIRON_SERVICE_URL = 'https://mipago.sandbox.euskadi.eus/p12iWar/p12iRPCDispatcherServlet';
+    final public const TEST_ENVIRON_SERVICE_URL = 'https://mipago.sandbox.euskadi.eus/p12iWar/p12iRPCDispatcherServlet';
 
-    const PROD_ENVIRON_INITIALIZATION_URL = 'https://www.euskadi.eus/p12gWar/p12gRPCDispatcherServlet';
+    final public const PROD_ENVIRON_INITIALIZATION_URL = 'https://www.euskadi.eus/p12gWar/p12gRPCDispatcherServlet';
 
-    const PROD_ENVIRON_SERVICE_URL = 'https://www.euskadi.eus/y22-pay/es/p12uiPaymentWar/p12uiRPCDispatcherServlet';
+    final public const PROD_ENVIRON_SERVICE_URL = 'https://www.euskadi.eus/y22-pay/es/p12uiPaymentWar/p12uiRPCDispatcherServlet';
     #const PROD_ENVIRON_SERVICE_URL = 'https://www.euskadi.eus/p12iWar/p12iRPCDispatcherServlet';
 
     /**
      * PREINICIALIZAR = "00";.
      */
-    const PAYMENT_STATUS_NOT_INITIALIZED = '00';
+    final public const PAYMENT_STATUS_NOT_INITIALIZED = '00';
 
-    const PAYMENT_STATUS_INITIALIZED = '01';
+    final public const PAYMENT_STATUS_INITIALIZED = '01';
 
-    const PAYMENT_STATUS_OK = '04';
+    final public const PAYMENT_STATUS_OK = '04';
 
-    const PAYMENT_STATUS_NOK = '05';
+    final public const PAYMENT_STATUS_NOK = '05';
 
-    const PAYMENT_STATUS_MESSAGES = [
+    final public const PAYMENT_STATUS_MESSAGES = [
         self::PAYMENT_STATUS_NOT_INITIALIZED => 'Payment could not be initialized. Probably incorrect suffix',
         self::PAYMENT_STATUS_INITIALIZED => 'Payment initialized. Sended to MiPago.',
         self::PAYMENT_STATUS_OK => 'Payment paid succesfully.',
@@ -132,17 +132,7 @@ XML;
 	</urls>
     </protocolData>
 XML;
-
-    private $pm = null;
-    private $cpr = null;
-    private $sender = null;
-    private $format = null;
-    private $language = null;
-    private $return_url = null;
-    private $payment_modes = [];
-    private $test_environment = null;
     private $logger = null;
-    private $suffixes = [];
 
     /**
      * @param PaymentManager  $em
@@ -155,17 +145,8 @@ XML;
      * @param bool            $test_environment
      * @param LoggerInterface $logger
      */
-    public function __construct(\MiPago\Bundle\Doctrine\PaymentManager $pm, $cpr, $sender, $format, $suffixes, $language, $return_url, $test_environment, $payment_modes, $logger)
+    public function __construct(private \MiPago\Bundle\Doctrine\PaymentManager $pm, private $cpr, private $sender, private $format, private $suffixes, private $language, private $return_url, private $test_environment, private $payment_modes, $logger)
     {
-        $this->pm = $pm;
-        $this->cpr = $cpr;
-        $this->sender = $sender;
-        $this->format = $format;
-        $this->suffixes = $suffixes;
-        $this->language = $language;
-        $this->return_url = $return_url;
-        $this->payment_modes = $payment_modes;
-        $this->test_environment = $test_environment;
         $this->logger = $logger;
         $this->template = file_get_contents(__DIR__ . '/../Resources/config/template.xml');
     }
@@ -199,7 +180,7 @@ XML;
      * @param bool      $test_environment
      * @param array     $extra
      *
-     * @return string
+     * @return array
      *
      * @throws Exception
      */
@@ -242,12 +223,12 @@ XML;
         }
 
         $suffixesArray = [];
-        if (0 !== strlen($suffixes[0])) {
-            $suffixesArray = explode(',', $suffixes[0]);
+        if (0 !== strlen((string) $suffixes[0])) {
+            $suffixesArray = explode(',', (string) $suffixes[0]);
         }
         $payment_modesArray = [];
-        if (0 !== strlen($payment_modes[0])) {
-            $payment_modesArray = explode(',', $payment_modes[0]);
+        if (0 !== strlen((string) $payment_modes[0])) {
+            $payment_modesArray = explode(',', (string) $payment_modes[0]);
         }
         if (count($suffixesArray) > 0 && !in_array($suffix, $suffixesArray)) {
             throw new Exception('Suffix, not allowed. The allowed suffixes are: %suffixes%');
@@ -281,8 +262,8 @@ XML;
                 '{language}' => $language,
                 '{payment_mode}' => $payment_modes_string,
             ];
-            $presentation_request_data = str_replace(array_keys($params), $params, $this->PRESENTATION_XML);
-            $protocol_data = str_replace('{return_url}', $return_url, $this->PROTOCOL_DATA_XML);
+            $presentation_request_data = str_replace(array_keys($params), $params, (string) $this->PRESENTATION_XML);
+            $protocol_data = str_replace('{return_url}', $return_url, (string) $this->PROTOCOL_DATA_XML);
 
             $payment = $pm->getRepository()->findOneBy(['registeredPaymentId' => $registered_payment_id]);
             if (null == $payment) {
@@ -373,50 +354,50 @@ XML;
 
         $message_1 = '';
         if (array_key_exists('message_1', $extra)) {
-            $message_1 = str_replace(['{es}', '{eu}'], [$extra['message_1']['es'], $extra['message_1']['eu']], $this->MESSAGE_1_TEMPLATE);
+            $message_1 = str_replace(['{es}', '{eu}'], [$extra['message_1']['es'], $extra['message_1']['eu']], (string) $this->MESSAGE_1_TEMPLATE);
         }
 
         $message_2 = '';
         if (array_key_exists('message_2', $extra)) {
-            $message_2 = str_replace(['{es}', '{eu}'], [$extra['message_2']['es'], $extra['message_2']['eu']], $this->MESSAGE_2_TEMPLATE);
+            $message_2 = str_replace(['{es}', '{eu}'], [$extra['message_2']['es'], $extra['message_2']['eu']], (string) $this->MESSAGE_2_TEMPLATE);
         }
 
         $message_3 = '';
         if (array_key_exists('message_3', $extra)) {
-            $message_3 = str_replace(['{es}', '{eu}'], [$extra['message_3']['es'], $extra['message_3']['eu']], $this->MESSAGE_3_TEMPLATE);
+            $message_3 = str_replace(['{es}', '{eu}'], [$extra['message_3']['es'], $extra['message_3']['eu']], (string) $this->MESSAGE_3_TEMPLATE);
         }
 
         $message_4 = '';
         if (array_key_exists('message_4', $extra)) {
-            $message_4 = str_replace(['{es}', '{eu}'], [$extra['message_4']['es'], $extra['message_4']['eu']], $this->MESSAGE_4_TEMPLATE);
+            $message_4 = str_replace(['{es}', '{eu}'], [$extra['message_4']['es'], $extra['message_4']['eu']], (string) $this->MESSAGE_4_TEMPLATE);
         }
 
         $message_payment_title = '';
         if (array_key_exists('message_payment_title', $extra)) {
-            $message_payment_title = str_replace(['{es}', '{eu}'], [$extra['message_payment_title']['es'], $extra['message_payment_title']['eu']], $this->MESSAGE_PAYMENT_TITLE);
+            $message_payment_title = str_replace(['{es}', '{eu}'], [$extra['message_payment_title']['es'], $extra['message_payment_title']['eu']], (string) $this->MESSAGE_PAYMENT_TITLE);
         }
 
         $mipago_payment_description = '';
         if (array_key_exists('mipago_payment_description', $extra)) {
-            $mipago_payment_description = str_replace(['{es}', '{eu}'], [$extra['mipago_payment_description']['es'], $extra['mipago_payment_description']['eu']], $this->MESSAGE_PAYMENT_DESCRIPTION);
+            $mipago_payment_description = str_replace(['{es}', '{eu}'], [$extra['mipago_payment_description']['es'], $extra['mipago_payment_description']['eu']], (string) $this->MESSAGE_PAYMENT_DESCRIPTION);
         }
 
         $logo_urls = '';
         if (array_key_exists('logo_1_url', $extra)) {
-            $logo_urls .= str_replace('{logo_1_url}', $extra['logo_1_url'], $this->LOGO_1_TEMPLATE);
+            $logo_urls .= str_replace('{logo_1_url}', $extra['logo_1_url'], (string) $this->LOGO_1_TEMPLATE);
         }
 
         if (array_key_exists('logo_2_url', $extra)) {
-            $logo_urls .= str_replace('{logo_2_url}', $extra['logo_2_url'], $this->LOGO_2_TEMPLATE);
+            $logo_urls .= str_replace('{logo_2_url}', $extra['logo_2_url'], (string) $this->LOGO_2_TEMPLATE);
         }
 
         if (array_key_exists('logo_urls', $extra)) {
-            $logo_urls .= str_replace('{data}', $logo_urls, $this->LOGO_WRAPPER_TEMPLATE);
+            $logo_urls .= str_replace('{data}', $logo_urls, (string) $this->LOGO_WRAPPER_TEMPLATE);
         }
 
         $pdf_xslt_url = '';
         if (array_key_exists('pdf_xslt_url', $extra)) {
-            $pdf_xslt_url = str_replace(['{pdf_xslt_url}'], [$extra['pdf_xslt_url']], $this->PDF_XSLT_TEMPLATE);
+            $pdf_xslt_url = str_replace(['{pdf_xslt_url}'], [$extra['pdf_xslt_url']], (string) $this->PDF_XSLT_TEMPLATE);
         }
 
         $params = [
@@ -450,23 +431,12 @@ XML;
             '{logo_urls}' => array_key_exists('logo_urls', $extra) ? $extra['logo_urls'] : '',
             '{pdf_xslt_url}' => array_key_exists('pdf_xslt_url', $extra) ? $extra['pdf_xslt_url'] : '',
         ];
-        $initialization_xml = str_replace(array_keys($params), $params, $this->template);
+        $initialization_xml = str_replace(array_keys($params), $params, (string) $this->template);
 
         $url = $INITIALIZATION_URL;
         $data = $initialization_xml;
-        $options = array(
-            'http' => array(
-                'method' => 'POST',
-                'header' => "Content-type: application/x-www-form-urlencoded\r\n"
-                    . 'Content-Length: ' . strlen('xmlRPC=' . trim($data)) . "\r\n",
-                'content' => 'xmlRPC=' . trim($data),
-            ),
-            "ssl"=>array(
-                "allow_self_signed"=>true,
-                "verify_peer"=>false,
-                "verify_peer_name"=>false,
-             ),
-        );
+        $options = ['http' => ['method' => 'POST', 'header' => "Content-type: application/x-www-form-urlencoded\r\n"
+            . 'Content-Length: ' . strlen('xmlRPC=' . trim($data)) . "\r\n", 'content' => 'xmlRPC=' . trim($data)], "ssl"=>["allow_self_signed"=>true, "verify_peer"=>false, "verify_peer_name"=>false]];
         $context = stream_context_create($options);
         $result = file_get_contents($url, false, $context);
 
@@ -484,7 +454,6 @@ XML;
      *  - The ordinal day of the date passed as paramenter as a
      *      3 digit string: '521'.
      *
-     * @param \DateTime $limit_date
      * @param string    $suffix
      */
     private function __calculate_payment_identification_notebook_c60(\DateTime $limit_date, $suffix)

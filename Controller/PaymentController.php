@@ -9,25 +9,21 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use MiPago\Bundle\Model\Payment;
 use MiPago\Bundle\Services\MiPagoService;
 use Psr\Log\LoggerInterface;
+
 use Exception;
 
 class PaymentController extends AbstractController
 {
-    private $forwardController;
-
-    public function __construct($forwardController)
+    public function __construct(private $forwardController)
     {
-        $this->forwardController = $forwardController;
     }
 
-    /**
-     * @Route("/sendRequest", name="mipago_sendRequest", methods={"GET","POST"})
-     */
-    public function sendRequestAction(Request $request, MiPagoService $miPagoService, LoggerInterface $logger)
+    #[Route(path: '/sendRequest', name: 'mipago_sendRequest', methods: ['GET', 'POST'])]
+    public function sendRequest(Request $request, MiPagoService $miPagoService, LoggerInterface $logger)
     {
-        $logger->debug('-->sendRequestAction: Start');
+        $logger->debug('-->sendRequest: Start');
         $locale = $this->__setLocale($request);
-        $reference_number = str_pad($request->get('reference_number'), 10, '0', STR_PAD_LEFT);
+        $reference_number = str_pad((string) $request->get('reference_number'), 10, '0', STR_PAD_LEFT);
         $payment_limit_date = new \DateTime($request->get('payment_limit_date'));
         $quantity = $request->get('quantity');
         $suffix = $request->get('suffix');
@@ -37,45 +33,41 @@ class PaymentController extends AbstractController
             $result = $miPagoService->make_payment_request($reference_number, $payment_limit_date, $sender, $suffix, $quantity, $locale, $extra);
         } catch (Exception $e) {
             $logger->debug($e);
-            $logger->debug('<--sendRequestAction: Exception: '.$e->getMessage());
+            $logger->debug('<--sendRequest: Exception: '.$e->getMessage());
 
             return $this->render('@MiPago/default/error.html.twig', [
                 'exception' => $e,
                 'suffixes' => implode(',', $miPagoService->getSuffixes()),
             ]);
         }
-        $logger->debug('<--sendRequestAction: End OK');
+        $logger->debug('<--sendRequest: End OK');
 
         return $this->render('@MiPago/default/request.html.twig', $result);
     }
 
-    /**
-     * @Route("/thanks", name="mipago_thanks" , methods={"GET"})
-     */
-    public function thanksAction(LoggerInterface $logger)
+    #[Route(path: '/thanks', name: 'mipago_thanks', methods: ['GET'])]
+    public function thanks(LoggerInterface $logger)
     {
-        $logger->debug('-->thanksAction: Start');
-        $logger->debug('<--thanksAction: End');
+        $logger->debug('-->thanks: Start');
+        $logger->debug('<--thanks: End');
 
         return $this->render('@MiPago/default/thanks.html.twig');
     }
 
-    /**
-     * @Route("/confirmation", name="mipago_confirmation", methods={"POST"})
-     */
-    public function confirmationAction(Request $request, MiPagoService $miPagoService, LoggerInterface $logger)
+    #[Route(path: '/confirmation', name: 'mipago_confirmation', methods: ['POST'])]
+    public function confirmation(Request $request, MiPagoService $miPagoService, LoggerInterface $logger)
     {
-        $logger->debug('-->confirmationAction: Start');
+        $logger->debug('-->confirmation: Start');
         $logger->debug($request->getContent());
         $payment = $miPagoService->process_payment_confirmation($request->getContent());
         if (null != $this->forwardController) {
-            $logger->debug('-->confirmationAction: End OK');
+            $logger->debug('-->confirmation: End OK');
 
             return $this->forward($this->forwardController, [
                 'payment' => $payment,
                 ]);
         }
-        $logger->debug('-->confirmationAction: End OK withJSONResponse');
+        $logger->debug('-->confirmation: End OK withJSONResponse');
 
         return new JsonResponse('OK');
     }

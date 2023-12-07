@@ -15,7 +15,7 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritdoc}
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('mi_pago');
 
@@ -28,7 +28,7 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('sender')->isRequired()->end()
             ->scalarNode('format')->defaultValue('521')->end()
             ->arrayNode('suffixes')
-                ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
+                ->beforeNormalization()->ifString()->then(fn($v) => [$v])->end()
                 ->prototype('scalar')->end()
             ->end()
             ->scalarNode('language')->defaultValue('eu')->end()
@@ -37,7 +37,7 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('forwardController')->end()
             ->booleanNode('test_environment')->defaultFalse()->end()
             ->arrayNode('payment_modes')
-                ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
+                ->beforeNormalization()->ifString()->then(fn($v) => [$v])->end()
                 ->prototype('scalar')->end()
             ->end()
             ->scalarNode('payment_class')->isRequired()->end()
