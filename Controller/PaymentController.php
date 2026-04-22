@@ -19,7 +19,7 @@ class PaymentController extends AbstractController
     }
 
     #[Route(path: '/sendRequest', name: 'mipago_sendRequest', methods: ['GET', 'POST'])]    
-    public function sendRequestAction(Request $request, MiPagoService $miPagoService, LoggerInterface $logger)
+    public function sendRequest(Request $request, MiPagoService $miPagoService, LoggerInterface $logger)
     {
         $logger->debug('-->sendRequest: Start');
         $locale = $this->__setLocale($request);
