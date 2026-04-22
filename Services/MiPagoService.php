@@ -192,7 +192,7 @@ XML;
         $quantity,
         $language,
         $extra
-    ) {
+    ): array {
         $pm = $this->pm;
         $cpr = $this->cpr;
         /* If sender is especified default is overwritten else takes the sender from the configuration file */
@@ -299,6 +299,7 @@ XML;
 
             return $result;
         }
+        throw new Exception('Error creating the payment');
     }
 
     /**

@@ -3,7 +3,7 @@
 namespace MiPago\Bundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use MiPago\Bundle\Model\Payment;
@@ -18,8 +18,8 @@ class PaymentController extends AbstractController
     {
     }
 
-    #[Route(path: '/sendRequest', name: 'mipago_sendRequest', methods: ['GET', 'POST'])]
-    public function sendRequest(Request $request, MiPagoService $miPagoService, LoggerInterface $logger)
+    #[Route(path: '/sendRequest', name: 'mipago_sendRequest', methods: ['GET', 'POST'])]    
+    public function sendRequestAction(Request $request, MiPagoService $miPagoService, LoggerInterface $logger)
     {
         $logger->debug('-->sendRequest: Start');
         $locale = $this->__setLocale($request);
